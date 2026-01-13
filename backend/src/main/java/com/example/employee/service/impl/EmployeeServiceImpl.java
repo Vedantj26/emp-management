@@ -2,6 +2,7 @@ package com.example.employee.service.impl;
 
 import com.example.employee.model.Employee;
 import com.example.employee.repository.EmployeeRepository;
+import com.example.employee.service.EmailService;
 import com.example.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,9 +15,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
+    private final EmailService emailService;
+
     @Override
     public Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        emailService.sendSelectionEmail(
+                savedEmployee.getEmail(),
+                savedEmployee.getName(),
+                savedEmployee.getDepartment()
+        );
+
+        emailService.sendOfferLetterEmail(
+                savedEmployee.getEmail(),
+                savedEmployee.getName(),
+                null
+        );
+
+        return savedEmployee;
     }
 
     @Override

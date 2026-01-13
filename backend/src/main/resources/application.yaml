@@ -14,3 +14,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: tejasbhamre8@gmail.com
+    password: mheg uvpv iztw lykv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
