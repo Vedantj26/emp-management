@@ -37,7 +37,7 @@ public class EmailService {
     public void sendOfferLetterEmail(
             String to,
             String employeeName,
-            MultipartFile offerLetter
+            ByteArrayResource offerLetter
     ) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -52,12 +52,7 @@ public class EmailService {
                             "Regards,\nHR Team"
             );
 
-            if (offerLetter != null && !offerLetter.isEmpty()) {
-                helper.addAttachment(
-                        offerLetter.getOriginalFilename(),
-                        new ByteArrayResource(offerLetter.getBytes())
-                );
-            }
+            helper.addAttachment("Offer_Letter.pdf", offerLetter);
 
             mailSender.send(message);
 

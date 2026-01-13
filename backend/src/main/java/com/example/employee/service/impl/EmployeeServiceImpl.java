@@ -6,6 +6,10 @@ import com.example.employee.service.EmailService;
 import com.example.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.core.io.ByteArrayResource;
+
+import java.io.InputStream;
+
 
 import java.util.List;
 
@@ -22,16 +26,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(employee);
 
+        // 1️⃣ Send selection email
         emailService.sendSelectionEmail(
                 savedEmployee.getEmail(),
                 savedEmployee.getName(),
                 savedEmployee.getDepartment()
         );
 
+        // 2️⃣ Load offer letter PDF from backend
+        ByteArrayResource offerLetter = loadOfferLetterFromResources();
+
+        // 3️⃣ Send offer letter email with attachment
         emailService.sendOfferLetterEmail(
                 savedEmployee.getEmail(),
                 savedEmployee.getName(),
-                null
+                offerLetter
         );
 
         return savedEmployee;
@@ -69,4 +78,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDeleted(true);
         employeeRepository.save(employee);
     }
+
+    private ByteArrayResource loadOfferLetterFromResources() {
+        try {
+            InputStream is = getClass()
+                    .getClassLoader()
+                    .getResourceAsStream("documents/offer_letter.pdf");
+
+            if (is == null) {
+                throw new RuntimeException("Offer letter PDF not found");
+            }
+
+            return new ByteArrayResource(is.readAllBytes());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load offer letter", e);
+        }
+    }
+
 }
