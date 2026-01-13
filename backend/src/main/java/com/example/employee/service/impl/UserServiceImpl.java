@@ -32,10 +32,6 @@ public class UserServiceImpl implements UserService {
 
         existingUser.setUsername(user.getUsername());
 
-        if (user.getPassword() != null && !user.getPassword().isBlank()) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-
         existingUser.setRole(user.getRole());
 
         return userRepository.save(existingUser);
@@ -49,11 +45,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findByDeletedFalse();
     }
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setDeleted(true);
+        userRepository.save(user);
     }
 }

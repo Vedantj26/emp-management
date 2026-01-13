@@ -7,6 +7,7 @@ import {
 } from "../api/employeeApi";
 import { toast } from "react-toastify";
 import axios from "axios";
+import swal from "sweetalert";
 
 const Employees = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -86,6 +87,16 @@ const Employees = () => {
 
     const handleDelete = async (id?: number) => {
         if (!id) return;
+
+        const willDelete = await swal({
+            title: "Are you sure?",
+            text: "This will delete the employee.",
+            icon: "warning",
+            buttons: ["Cancel", "Delete"],
+            dangerMode: true,
+        });
+
+        if (!willDelete) return;
 
         try {
             await deleteEmployee(id);

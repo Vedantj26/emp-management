@@ -1,5 +1,6 @@
 package com.example.employee.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,8 +9,6 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -23,4 +22,9 @@ public class User {
     private String password;
 
     private String role;
+
+    @JsonIgnore
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
 }
