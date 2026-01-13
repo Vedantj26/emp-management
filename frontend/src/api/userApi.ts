@@ -8,3 +8,6 @@ export const createUser = (data: User) =>
 
 export const deleteUser = (id: number) =>
   api.delete(`/api/users/${id}`);
+
+export const updateUser = (id: number, data: Partial<User>) =>
+  api.put(`/api/users/${id}`, data);
