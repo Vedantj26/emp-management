@@ -4,10 +4,20 @@ import Employees from "./pages/Employees";
 import Users from "./pages/Users";
 import PrivateRoute from "./components/PrivateRoute";
 import PageLayout from "./layout/PageLayout";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
       <Routes>
         <Route path="/" element={<Login />} />
 

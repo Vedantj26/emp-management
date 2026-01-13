@@ -11,6 +11,7 @@ import axios from "axios";
 const Employees = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
 
     const [form, setForm] = useState<Employee>({
         name: "",
@@ -52,7 +53,11 @@ const Employees = () => {
 
         try {
             await createEmployee(form);
-            toast.success("Employee added successfully");
+            toast.success(
+                isEdit
+                    ? "Employee updated successfully"
+                    : "Employee added successfully"
+            );
             setShowModal(false);
             setForm({ name: "", email: "", department: "", salary: 0 });
             loadEmployees();
@@ -64,6 +69,20 @@ const Employees = () => {
             }
         }
     };
+
+    const handleEdit = (emp: Employee) => {
+        setForm({
+            id: emp.id,
+            name: emp.name,
+            email: emp.email,
+            department: emp.department,
+            salary: emp.salary,
+        });
+
+        setIsEdit(true);
+        setShowModal(true);
+    };
+
 
     const handleDelete = async (id?: number) => {
         if (!id) return;
@@ -91,7 +110,11 @@ const Employees = () => {
                 <h3 style={{ margin: 0, color: "#2c2c2c" }}>Employees</h3>
 
                 <button
-                    onClick={() => setShowModal(true)}
+                    onClick={() => {
+                        setShowModal(true);
+                        setIsEdit(false);
+                        setForm({ name: "", email: "", department: "", salary: 0 });
+                    }}
                     style={{
                         padding: "8px 14px",
                         backgroundColor: "#1976d2",
@@ -143,7 +166,24 @@ const Employees = () => {
                             <td style={cellStyle}>{emp.salary}</td>
                             <td style={cellStyle}>
                                 <button
+                                    onClick={() => handleEdit(emp)}
+                                    title="Edit Employee"
+                                    style={{
+                                        marginRight: "8px",
+                                        padding: "6px 10px",
+                                        border: "1px solid #1976d2",
+                                        backgroundColor: "#ffffff",
+                                        color: "#1976d2",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Edit
+                                </button>
+
+                                <button
                                     onClick={() => handleDelete(emp.id)}
+                                    title="Delete Employee"
                                     style={{
                                         padding: "6px 10px",
                                         border: "1px solid #d32f2f",
@@ -180,8 +220,8 @@ const Employees = () => {
             {showModal && (
                 <div style={modalOverlay}>
                     <div style={modalCard}>
-                        <h3 style={{ marginBottom: "16px", color: "#2c2c2c" }}>
-                            Add Employee
+                        <h3 style={{ marginBottom: "20px", color: "#2c2c2c", textAlign: "center" }}>
+                            {isEdit ? "Edit Employee" : "Add Employee"}
                         </h3>
 
                         <form onSubmit={handleCreate}>
@@ -238,7 +278,7 @@ const Employees = () => {
                                 </button>
 
                                 <button type="submit" style={saveBtn}>
-                                    Save
+                                    {isEdit ? "Update" : "Save"}
                                 </button>
                             </div>
                         </form>
@@ -248,8 +288,6 @@ const Employees = () => {
         </>
     );
 };
-
-/* ---------------- STYLES ---------------- */
 
 const cellStyle: React.CSSProperties = {
     padding: "12px",
@@ -273,13 +311,14 @@ const modalOverlay: React.CSSProperties = {
 const modalCard: React.CSSProperties = {
     width: "380px",
     backgroundColor: "#ffffff",
-    padding: "24px",
+    padding: "24px 32px",
     borderRadius: "8px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
 };
 
 const inputStyle: React.CSSProperties = {
     width: "100%",
+    boxSizing: "border-box",
     padding: "10px",
     marginBottom: "12px",
     borderRadius: "4px",

@@ -14,8 +14,6 @@ const Users = () => {
     role: "USER",
   });
 
-  /* ================= LOAD USERS ================= */
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -33,8 +31,6 @@ const Users = () => {
     const res = await getUsers();
     setUsers(res.data);
   };
-
-  /* ================= CREATE USER ================= */
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,8 +55,6 @@ const Users = () => {
     }
   };
 
-  /* ================= DELETE USER ================= */
-
   const handleDelete = async (id?: number) => {
     if (!id) return;
 
@@ -73,11 +67,8 @@ const Users = () => {
     }
   };
 
-  /* ================= UI ================= */
-
   return (
     <>
-      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -96,7 +87,6 @@ const Users = () => {
         </button>
       </div>
 
-      {/* Table */}
       <table style={tableStyle}>
         <thead>
           <tr style={{ backgroundColor: "#f5f5f5" }}>
@@ -134,7 +124,6 @@ const Users = () => {
         </tbody>
       </table>
 
-      {/* MODAL */}
       {showModal && (
         <div style={modalOverlay}>
           <div style={modalCard}>
@@ -194,8 +183,6 @@ const Users = () => {
   );
 };
 
-/* ================= STYLES ================= */
-
 const addBtn: React.CSSProperties = {
   padding: "8px 14px",
   backgroundColor: "#1976d2",
@@ -216,7 +203,7 @@ const thStyle: React.CSSProperties = {
   padding: "12px",
   borderBottom: "1px solid #e0e0e0",
   textAlign: "left",
-  color: "#000000",        // ✅ BLACK TEXT
+  color: "#000000",
   fontWeight: 600,
   backgroundColor: "#f5f5f5",
 };
@@ -224,7 +211,7 @@ const thStyle: React.CSSProperties = {
 const tdStyle: React.CSSProperties = {
   padding: "12px",
   borderBottom: "1px solid #e0e0e0",
-  color: "#000000",        // ✅ BLACK TEXT
+  color: "#000000",
 };
 
 const deleteBtn: React.CSSProperties = {
@@ -243,33 +230,36 @@ const emptyRow: React.CSSProperties = {
 };
 
 const modalOverlay: React.CSSProperties = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100vw",
-  height: "100vh",
-  backgroundColor: "#f4f6f8",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.3)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
 };
 
 const modalCard: React.CSSProperties = {
-  width: "380px",
-  backgroundColor: "#ffffff",
-  padding: "24px",
-  borderRadius: "8px",
+    width: "380px",
+    backgroundColor: "#ffffff",
+    padding: "24px 32px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
 };
 
 const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px",
-  marginBottom: "12px",
-  borderRadius: "4px",
-  border: "1px solid #ccc",
-  backgroundColor: "#f2f2f2",
-  color: "#000",
-  colorScheme: "light",
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "10px",
+    marginBottom: "12px",
+    borderRadius: "4px",
+    border: "1px solid #cfcfcf",
+    backgroundColor: "#f2f2f2",
+    color: "#000000",
+    colorScheme: "light",
 };
 
 const btnRow: React.CSSProperties = {
