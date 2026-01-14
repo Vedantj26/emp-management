@@ -15,14 +15,10 @@ spring:
       hibernate:
         format_sql: true
 
-  mail:
-    host: smtp.gmail.com
-    port: 465
-    username: tejasbhamre8@gmail.com
-    password: mheg uvpv iztw lykv
-    properties:
-      mail:
-        smtp:
-          auth: true
-          ssl:
-            enable: true
+  sendgrid:
+    api-key: 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
+    from-email: tejasbhamre8@gmail.com
+
+  security:
+    encryption:
+      key: VIQ0MB0wYUCYXlAJ9J7Pug==
