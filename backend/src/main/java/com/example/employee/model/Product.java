@@ -17,15 +17,13 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Convert(converter = EncryptedStringConverter.class)
     @Column(nullable = false)
     private String name;
 
-    @Convert(converter = EncryptedStringConverter.class)
-    @Column(nullable = false, length = 2000)
+    @Column(nullable = false, length = 1000)
     private String description;
 
-    private String attachmentPath;
+    private String attachment;
 
     @Builder.Default
     @Column(nullable = false)

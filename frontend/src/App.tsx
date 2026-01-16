@@ -5,6 +5,8 @@ import Users from "./pages/Users";
 import PrivateRoute from "./components/PrivateRoute";
 import PageLayout from "./layout/PageLayout";
 import { ToastContainer } from "react-toastify";
+import Products from "./pages/Products";
+import Exhibition from "./pages/Exhibition";
 
 const App = () => {
   return (
@@ -38,6 +40,28 @@ const App = () => {
             <PrivateRoute>
               <PageLayout>
                 <Users />
+              </PageLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/products"
+          element={
+            <PrivateRoute>
+              <PageLayout>
+                <Products />
+              </PageLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/exhibition"
+          element={
+            <PrivateRoute>
+              <PageLayout>
+                <Exhibition />
               </PageLayout>
             </PrivateRoute>
           }

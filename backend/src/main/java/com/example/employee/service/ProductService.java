@@ -7,14 +7,11 @@ import java.util.List;
 
 public interface ProductService {
 
-    Product createProduct(String name, String description, MultipartFile file);
+    Product createProduct(Product product, MultipartFile file);
 
-    Product updateProduct(Long id, String name, String description, MultipartFile file);
+    Product updateProduct(Long id, Product product, MultipartFile file);
 
     List<Product> getAllProducts();
 
     void deleteProduct(Long id);
-
-    byte[] downloadAttachment(Long id);
 }
-
