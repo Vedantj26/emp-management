@@ -10,7 +10,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "visitors")
+@Table(
+        name = "visitors",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"email", "exhibition_id"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

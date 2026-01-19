@@ -22,13 +22,14 @@ public class VisitorController {
         return visitorService.createVisitor(request);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/exhibition/{exhibitionId}")
     public Object getByExhibition(@PathVariable Long exhibitionId) {
         return visitorService.getVisitorsByExhibition(exhibitionId);
     }
 
-    @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
     public Object getAll() {
         return visitorService.getAllVisitors();
     }

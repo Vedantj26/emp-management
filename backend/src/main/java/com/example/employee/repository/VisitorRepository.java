@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface VisitorRepository extends JpaRepository<Visitor, Long> {
 
+    boolean existsByEmailAndExhibitionId(String email, Long exhibitionId);
+
     List<Visitor> findByExhibitionId(Long exhibitionId);
 }

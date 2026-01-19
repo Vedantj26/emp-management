@@ -6,11 +6,15 @@ import com.example.employee.repository.*;
 import com.example.employee.service.EmailService;
 import com.example.employee.service.VisitorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +30,21 @@ public class VisitorServiceImpl implements VisitorService {
     @Transactional
     public Visitor createVisitor(VisitorRequest request) {
 
+        boolean exists = visitorRepository.existsByEmailAndExhibitionId(
+                request.getEmail(),
+                request.getExhibitionId()
+        );
+
+        if (exists) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "This email is already registered for this exhibition"
+            );
+        }
+
         Exhibition exhibition = exhibitionRepository.findById(
                 request.getExhibitionId()
-        ).orElseThrow(() -> new RuntimeException("Exhibition not found"));
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Exhibition not found"));
 
         Visitor visitor = new Visitor();
         visitor.setName(request.getName());
@@ -39,11 +55,11 @@ public class VisitorServiceImpl implements VisitorService {
 
         Visitor savedVisitor = visitorRepository.save(visitor);
 
+        Set<Long> uniqueProductIds = new HashSet<>(request.getProductIds());
         List<Product> selectedProducts = new ArrayList<>();
 
-        for (Long productId : request.getProductIds()) {
+        for (Long productId : uniqueProductIds) {
 
-            // ✅ Prevent duplicate visitor-product mapping
             if (visitorProductRepository.existsByVisitorIdAndProductId(
                     savedVisitor.getId(), productId)) {
                 continue;
@@ -60,7 +76,6 @@ public class VisitorServiceImpl implements VisitorService {
             selectedProducts.add(product);
         }
 
-        // 📧 Send email with selected product attachments
         emailService.sendVisitorProductEmail(
                 savedVisitor.getEmail(),
                 savedVisitor.getName(),

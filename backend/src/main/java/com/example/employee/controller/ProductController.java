@@ -9,6 +9,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +25,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Product create(
             @RequestPart("product") String productJson,
@@ -35,6 +37,7 @@ public class ProductController {
         return productService.createProduct(product, file);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(
             value = "/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
@@ -55,6 +58,7 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         productService.deleteProduct(id);
