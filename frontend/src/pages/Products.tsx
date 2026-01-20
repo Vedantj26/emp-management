@@ -13,12 +13,26 @@ const Products = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState<string | null>(null);
 
   const [form, setForm] = useState<Product>({
     name: "",
     description: "",
     attachment: "",
   });
+
+  const isImage = (file?: string) =>
+    file?.match(/\.(jpg|jpeg|png|webp)$/i);
+
+  const isPdf = (file?: string) =>
+    file?.match(/\.pdf$/i);
+
+  const openPreview = (filename?: string) => {
+    if (!filename) return;
+    setPreviewFile(filename);
+    setPreviewOpen(true);
+  };
 
   const loadProducts = async () => {
     try {
@@ -167,13 +181,16 @@ const Products = () => {
               <td style={cellStyle}>{product.description}</td>
               <td style={cellStyle}>
                 {product.attachment ? (
-                  <a
-                    href={`http://localhost:8080/api/products/download/${product.attachment}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <span
+                    onClick={() => openPreview(product.attachment)}
+                    style={{
+                      cursor: "pointer",
+                      color: "#1976d2",
+                      textDecoration: "underline",
+                    }}
                   >
                     {product.attachment}
-                  </a>
+                  </span>
                 ) : (
                   "—"
                 )}
@@ -271,6 +288,54 @@ const Products = () => {
           </div>
         </div>
       )}
+
+      {previewOpen && previewFile && (
+        <div style={modalOverlay}>
+          <div
+            style={{
+              ...modalCard,
+              width: "600px",
+              maxHeight: "80vh",
+            }}
+          >
+            <h3 style={{ textAlign: "center", marginBottom: "12px" }}>
+              Attachment Preview
+            </h3>
+
+            {isImage(previewFile) ? (
+              <img
+                src={`http://localhost:8080/api/products/download/${previewFile}`}
+                style={{
+                  width: "100%",
+                  maxHeight: "60vh",
+                  objectFit: "contain",
+                }}
+              />
+            ) : isPdf(previewFile) ? (
+              <iframe
+                src={`http://localhost:8080/api/products/preview/${previewFile}#toolbar=0&navpanes=0&scrollbar=0`}
+                style={{
+                  width: "100%",
+                  height: "60vh",
+                  border: "none",
+                }}
+              />
+            ) : (
+              <p>Preview not supported</p>
+            )}
+
+            <div style={{ textAlign: "right", marginTop: "12px" }}>
+              <button
+                onClick={() => setPreviewOpen(false)}
+                style={cancelBtn}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };

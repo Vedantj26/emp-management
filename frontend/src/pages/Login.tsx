@@ -22,7 +22,8 @@ const Login = () => {
       const res = await login({ username, password });
       setSession(res.data.token, res.data.role);
       toast.success("Login successful");
-      navigate("/employees");
+      const role = res.data.role;
+      navigate(role === "ADMIN" ? "/employees" : "/exhibition");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         toast.error(

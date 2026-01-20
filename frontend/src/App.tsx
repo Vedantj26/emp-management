@@ -6,7 +6,9 @@ import PrivateRoute from "./components/PrivateRoute";
 import PageLayout from "./layout/PageLayout";
 import { ToastContainer } from "react-toastify";
 import Products from "./pages/Products";
-import Exhibition from "./pages/Exhibition";
+import Exhibitions from "./pages/Exhibitions";
+import Visitors from "./pages/Visitors";
+import RoleRoute from "./utils/RoleRoute";
 
 const App = () => {
   return (
@@ -27,9 +29,11 @@ const App = () => {
           path="/employees"
           element={
             <PrivateRoute>
-              <PageLayout>
-                <Employees />
-              </PageLayout>
+              <RoleRoute allowedRoles={["ADMIN"]}>
+                <PageLayout>
+                  <Employees />
+                </PageLayout>
+              </RoleRoute>
             </PrivateRoute>
           }
         />
@@ -38,9 +42,11 @@ const App = () => {
           path="/users"
           element={
             <PrivateRoute>
-              <PageLayout>
-                <Users />
-              </PageLayout>
+              <RoleRoute allowedRoles={["ADMIN"]}>
+                <PageLayout>
+                  <Users />
+                </PageLayout>
+              </RoleRoute>
             </PrivateRoute>
           }
         />
@@ -49,9 +55,11 @@ const App = () => {
           path="/products"
           element={
             <PrivateRoute>
-              <PageLayout>
-                <Products />
-              </PageLayout>
+              <RoleRoute allowedRoles={["ADMIN"]}>
+                <PageLayout>
+                  <Products />
+                </PageLayout>
+              </RoleRoute>
             </PrivateRoute>
           }
         />
@@ -60,9 +68,24 @@ const App = () => {
           path="/exhibition"
           element={
             <PrivateRoute>
-              <PageLayout>
-                <Exhibition />
-              </PageLayout>
+              <RoleRoute allowedRoles={["ADMIN", "USER"]}>
+                <PageLayout>
+                  <Exhibitions />
+                </PageLayout>
+              </RoleRoute>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/visitors"
+          element={
+            <PrivateRoute>
+              <RoleRoute allowedRoles={["ADMIN", "USER"]}>
+                <PageLayout>
+                  <Visitors />
+                </PageLayout>
+              </RoleRoute>
             </PrivateRoute>
           }
         />

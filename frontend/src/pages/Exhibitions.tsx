@@ -9,11 +9,15 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import swal from "sweetalert";
+import { getRole } from "../utils/auth";
 
-const Exhibition = () => {
+const Exhibitions = () => {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewExhibition, setViewExhibition] = useState<any>(null);
+  const role = getRole();
 
   const [form, setForm] = useState<Exhibition>({
     name: "",
@@ -36,6 +40,11 @@ const Exhibition = () => {
   useEffect(() => {
     loadExhibitions();
   }, []);
+
+  const handleView = (exhibition: any) => {
+    setViewExhibition(exhibition);
+    setShowViewModal(true);
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,34 +199,54 @@ const Exhibition = () => {
               <td style={cellStyle}>{ex.timing}</td>
               <td style={cellStyle}>{ex.active ? "Yes" : "No"}</td>
               <td style={cellStyle}>
-                <button
-                  onClick={() => handleEdit(ex)}
-                  style={{
-                    marginRight: "8px",
-                    padding: "6px 10px",
-                    border: "1px solid #1976d2",
-                    backgroundColor: "#ffffff",
-                    color: "#1976d2",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Edit
-                </button>
+                {role === "USER" && (
+                  <button
+                    onClick={() => handleView(ex)}
+                    style={{
+                      padding: "6px 10px",
+                      border: "1px solid #1976d2",
+                      backgroundColor: "#ffffff",
+                      color: "#1976d2",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    View
+                  </button>
+                )}
 
-                <button
-                  onClick={() => handleDelete(ex.id)}
-                  style={{
-                    padding: "6px 10px",
-                    border: "1px solid #d32f2f",
-                    backgroundColor: "#ffffff",
-                    color: "#d32f2f",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
+                {role === "ADMIN" && (
+                  <>
+                    <button
+                      onClick={() => handleEdit(ex)}
+                      style={{
+                        marginRight: "8px",
+                        padding: "6px 10px",
+                        border: "1px solid #1976d2",
+                        backgroundColor: "#ffffff",
+                        color: "#1976d2",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(ex.id)}
+                      style={{
+                        padding: "6px 10px",
+                        border: "1px solid #d32f2f",
+                        backgroundColor: "#ffffff",
+                        color: "#d32f2f",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
@@ -320,6 +349,37 @@ const Exhibition = () => {
           </div>
         </div>
       )}
+
+      {showViewModal && viewExhibition && (
+        <div style={modalOverlay}>
+          <div style={modalCard}>
+            <h3 style={{ marginBottom: "20px", textAlign: "center" }}>
+              Exhibition Details
+            </h3>
+
+            <input value={viewExhibition.name} disabled style={inputStyle} />
+            <input value={viewExhibition.location} disabled style={inputStyle} />
+            <input value={viewExhibition.startDate} disabled style={inputStyle} />
+            <input value={viewExhibition.endDate} disabled style={inputStyle} />
+            <input value={viewExhibition.timing} disabled style={inputStyle} />
+            <input
+              value={viewExhibition.active ? "Active" : "Inactive"}
+              disabled
+              style={inputStyle}
+            />
+
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setShowViewModal(false)}
+                style={cancelBtn}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };
@@ -380,4 +440,4 @@ const saveBtn: React.CSSProperties = {
   cursor: "pointer",
 };
 
-export default Exhibition;
+export default Exhibitions;
