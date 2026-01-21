@@ -129,10 +129,10 @@ const Visitors = () => {
 
         <button
           onClick={() => {
-            if (!selectedExhibitionId) {
-              toast.error("Please select an exhibition first");
-              return;
-            }
+            // if (!selectedExhibitionId) {
+            //   toast.error("Please select an exhibition first");
+            //   return;
+            // }
 
             setForm((prev) => ({
               ...prev,
@@ -170,7 +170,7 @@ const Visitors = () => {
         }}
       >
         <option value={0}>Select Exhibition</option>
-        {exhibitions.map((ex) => (
+        {exhibitions.filter((ex) => ex.active).map((ex) => (
           <option key={ex.id} value={ex.id}>
             {ex.name}
           </option>
@@ -287,7 +287,7 @@ const Visitors = () => {
                 style={inputStyle}
               >
                 <option value={0}>Select Exhibition</option>
-                {exhibitions.map((ex) => (
+                {exhibitions.filter((ex) => ex.active).map((ex) => (
                   <option key={ex.id} value={ex.id}>
                     {ex.name}
                   </option>

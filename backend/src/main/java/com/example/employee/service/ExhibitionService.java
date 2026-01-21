@@ -12,5 +12,7 @@ public interface ExhibitionService {
 
     List<Exhibition> getAllExhibitions();
 
+    List<Exhibition> getActiveExhibitions();
+
     void deleteExhibition(Long id);
 }

@@ -42,6 +42,11 @@ public class ExhibitionServiceImpl implements ExhibitionService {
     }
 
     @Override
+    public List<Exhibition> getActiveExhibitions() {
+        return exhibitionRepository.findByDeletedFalseAndActiveTrue();
+    }
+
+    @Override
     public void deleteExhibition(Long id) {
         Exhibition exhibition = exhibitionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exhibition not found"));

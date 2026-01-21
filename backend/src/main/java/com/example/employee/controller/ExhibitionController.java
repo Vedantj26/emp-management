@@ -4,6 +4,7 @@ import com.example.employee.model.Exhibition;
 import com.example.employee.service.ExhibitionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,8 +33,18 @@ public class ExhibitionController {
     }
 
     @GetMapping
-    public List<Exhibition> getAll() {
-        return exhibitionService.getAllExhibitions();
+    public List<Exhibition> getAll(Authentication authentication) {
+
+        String role = authentication.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+
+        if (role.equals("ROLE_ADMIN")) {
+            return exhibitionService.getAllExhibitions();
+        }
+
+        return exhibitionService.getActiveExhibitions();
     }
 
     @PreAuthorize("hasRole('ADMIN')")

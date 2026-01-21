@@ -332,6 +332,19 @@ const Exhibitions = () => {
                 style={inputStyle}
               />
 
+              {isEdit && role === "ADMIN" && (
+                <select
+                  value={form.active ? "true" : "false"}
+                  onChange={(e) =>
+                    setForm({ ...form, active: e.target.value === "true" })
+                  }
+                  style={inputStyle}
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              )}
+
               <div style={{ display: "flex", gap: "10px" }}>
                 <button
                   type="button"
