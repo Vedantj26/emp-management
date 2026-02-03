@@ -17,7 +17,7 @@ spring:
 
   sendgrid:
     api-key: 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
-    from-email: tejasbhamre8@gmail.com
+    from-email: sales@nixelsoft.com
 
   security:
     encryption:

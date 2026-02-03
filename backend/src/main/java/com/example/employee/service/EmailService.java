@@ -6,6 +6,7 @@
     import com.sendgrid.helpers.mail.objects.Attachments;
     import com.sendgrid.helpers.mail.objects.Content;
     import com.sendgrid.helpers.mail.objects.Email;
+    import com.sendgrid.helpers.mail.objects.Personalization;
     import lombok.RequiredArgsConstructor;
     import org.springframework.beans.factory.annotation.Value;
     import org.springframework.core.io.ByteArrayResource;
@@ -140,6 +141,9 @@
             Email from = new Email(fromEmail);
             Email toEmail = new Email(to);
 
+            Email cc1 = new Email("govind.bharkade@nixelsoft.com");
+            Email cc2 = new Email("sana.chougle@nixelsoft.com");
+
             StringBuilder body = new StringBuilder();
             body.append("Dear ").append(visitorName).append(",\n\n")
                     .append("Thank you for visiting us at ").append(exhibitionName).append(".\n")
@@ -152,7 +156,18 @@
             body.append("\nRegards,\nExhibition Team");
 
             Content content = new Content("text/plain", body.toString());
-            Mail mail = new Mail(from, "Product Details from Exhibition", toEmail, content);
+
+            Mail mail = new Mail();
+            mail.setFrom(from);
+            mail.setSubject("Product Details from Exhibition");
+            mail.addContent(content);
+
+            Personalization personalization = new Personalization();
+            personalization.addTo(toEmail);
+            personalization.addCc(cc1);
+            personalization.addCc(cc2);
+
+            mail.addPersonalization(personalization);
 
             // 📎 Attach product files
             for (Product product : products) {
