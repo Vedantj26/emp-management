@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface VisitorService {
 
-    Visitor createVisitor(VisitorRequest visitorRequest);
+    Visitor createVisitorInternal(VisitorRequest visitorRequest);
+
+    Visitor createVisitorPublic(VisitorRequest visitorRequest);
 
     List<Visitor> getVisitorsByExhibition(Long exhibitionId);
 

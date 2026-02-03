@@ -96,4 +96,10 @@ public class ProductController {
                 .body(resource);
     }
 
+    @GetMapping("/public")
+    public List<Product> getPublicProducts() {
+        return productService.getActiveProducts();
+    }
+
+
 }

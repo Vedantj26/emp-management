@@ -39,6 +39,11 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/products/download/**").permitAll()
                         .requestMatchers("/api/products/preview/**").permitAll()
+                        .requestMatchers(
+                                "/api/visitors",
+                                "/api/exhibitions/public/**",
+                                "/api/products/public/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()

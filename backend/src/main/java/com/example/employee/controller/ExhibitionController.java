@@ -3,6 +3,7 @@ package com.example.employee.controller;
 import com.example.employee.model.Exhibition;
 import com.example.employee.service.ExhibitionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -52,4 +53,12 @@ public class ExhibitionController {
     public void delete(@PathVariable Long id) {
         exhibitionService.deleteExhibition(id);
     }
+
+    @GetMapping("/public/{id}")
+    public ResponseEntity<Exhibition> getPublicExhibition(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                exhibitionService.getActiveExhibitionById(id)
+        );
+    }
+
 }

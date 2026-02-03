@@ -26,9 +26,8 @@ public class VisitorServiceImpl implements VisitorService {
     private final VisitorProductRepository visitorProductRepository;
     private final EmailService emailService;
 
-    @Override
     @Transactional
-    public Visitor createVisitor(VisitorRequest request) {
+    public Visitor createVisitorInternal(VisitorRequest request) {
 
         boolean exists = visitorRepository.existsByEmailAndExhibitionId(
                 request.getEmail(),
@@ -42,9 +41,9 @@ public class VisitorServiceImpl implements VisitorService {
             );
         }
 
-        Exhibition exhibition = exhibitionRepository.findById(
-                request.getExhibitionId()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Exhibition not found"));
+        Exhibition exhibition = exhibitionRepository.findById(request.getExhibitionId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Exhibition not found"));
 
         Visitor visitor = new Visitor();
         visitor.setName(request.getName());
@@ -76,14 +75,28 @@ public class VisitorServiceImpl implements VisitorService {
             selectedProducts.add(product);
         }
 
-        emailService.sendVisitorProductEmail(
-                savedVisitor.getEmail(),
-                savedVisitor.getName(),
-                exhibition.getName(),
-                selectedProducts
-        );
-
         return savedVisitor;
+    }
+
+    @Override
+    public Visitor createVisitorPublic(VisitorRequest request) {
+
+        Visitor visitor = createVisitorInternal(request);
+
+        try {
+            emailService.sendVisitorProductEmail(
+                    visitor.getEmail(),
+                    visitor.getName(),
+                    visitor.getExhibition().getName(),
+                    visitorProductRepository.findProductsByVisitorId(visitor.getId())
+            );
+        } catch (Exception e) {
+            // 🔥 DO NOT FAIL PUBLIC FLOW
+            System.err.println("Email failed for visitor " + visitor.getEmail());
+            e.printStackTrace();
+        }
+
+        return visitor;
     }
 
     @Override

@@ -22,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import ExhibitionQR from '@/components/ExhibitionQR';
+
 
 interface Exhibition {
   id: number;
@@ -54,6 +56,7 @@ export default function ExhibitionsPage() {
   const user = getAuthUser();
   const role: UserRole | undefined = user?.role;
   const isAdmin = role === "ADMIN";
+  const [qrExhibitionId, setQrExhibitionId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchExhibitions();
@@ -200,6 +203,14 @@ export default function ExhibitionsPage() {
                     >
                       <Trash2 size={16} className="text-red-600" />
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setQrExhibitionId(row.id)}
+                      title="Show QR"
+                    >
+                      📱
+                    </Button>
                   </div>
                 ),
               }]
@@ -330,6 +341,19 @@ export default function ExhibitionsPage() {
           onConfirm={handleConfirmDelete}
         />
       </div>
+
+      <FormModal
+        open={qrExhibitionId !== null}
+        onOpenChange={() => setQrExhibitionId(null)}
+        title="Exhibition QR Code"
+      >
+        {qrExhibitionId && (
+          <div className="flex justify-center py-6">
+            <ExhibitionQR exhibitionId={qrExhibitionId} />
+          </div>
+        )}
+      </FormModal>
+
     </AdminLayout>
   );
 }

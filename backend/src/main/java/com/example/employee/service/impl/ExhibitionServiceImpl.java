@@ -54,4 +54,17 @@ public class ExhibitionServiceImpl implements ExhibitionService {
         exhibition.setDeleted(true);
         exhibitionRepository.save(exhibition);
     }
+
+    @Override
+    public Exhibition getActiveExhibitionById(Long id) {
+        Exhibition ex = exhibitionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Exhibition not found"));
+
+        if (!ex.getActive()) {
+            throw new RuntimeException("Exhibition is inactive");
+        }
+
+        return ex;
+    }
+
 }

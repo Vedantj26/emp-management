@@ -72,4 +72,10 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("File upload failed", e);
         }
     }
+
+    @Override
+    public List<Product> getActiveProducts() {
+        return productRepository.findByDeletedFalse();
+    }
+
 }

@@ -19,7 +19,7 @@ public class VisitorController {
 
     @PostMapping
     public Visitor createVisitor(@RequestBody VisitorRequest request) {
-        return visitorService.createVisitor(request);
+        return visitorService.createVisitorPublic(request);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
