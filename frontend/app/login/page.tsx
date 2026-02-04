@@ -18,11 +18,13 @@ export default function LoginPage() {
     password: '',
   });
   const [error, setError] = useState('');
+  const [showErrors, setShowErrors] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError('');
+    setShowErrors(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,6 +34,7 @@ export default function LoginPage() {
 
     if (!formData.username || !formData.password) {
       setError("Please fill in all fields");
+      setShowErrors(true);
       setIsLoading(false);
       return;
     }
@@ -95,6 +98,7 @@ export default function LoginPage() {
                   onChange={handleChange}
                   placeholder="admin@techexpo.com"
                   className="pl-10 h-11"
+                  aria-invalid={showErrors && !formData.username}
                 />
               </div>
             </div>
@@ -117,6 +121,7 @@ export default function LoginPage() {
                   onChange={handleChange}
                   placeholder="••••••••"
                   className="pl-10 h-11"
+                  aria-invalid={showErrors && !formData.password}
                 />
               </div>
             </div>

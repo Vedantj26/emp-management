@@ -50,6 +50,7 @@ export default function ProductsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     fileName: string;
@@ -101,6 +102,7 @@ export default function ProductsPage() {
   const handleAddClick = () => {
     setEditingId(null);
     setFormData({ name: '', description: '', attachment: null });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -113,6 +115,7 @@ export default function ProductsPage() {
       description: product.description,
       attachment: null,
     });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -124,6 +127,14 @@ export default function ProductsPage() {
   const handleSubmit = async () => {
     if (!isAdmin) return;
     if (isSubmitting) return;
+    if (!formData.name || !formData.description) {
+      setShowErrors(true);
+      toast({
+        title: "Please fill all required fields",
+        variant: "warning",
+      });
+      return;
+    }
     setIsSubmitting(true);
 
     const productPayload = {
@@ -151,6 +162,7 @@ export default function ProductsPage() {
       await fetchProducts();
       setIsModalOpen(false);
       setEditingId(null);
+      setShowErrors(false);
       toast({
         title: isEditing ? "Product updated" : "Product created",
         variant: "success",
@@ -289,13 +301,14 @@ export default function ProductsPage() {
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
         >
-          <FormBuilder
-            fields={productFormFields}
-            values={formData}
-            onChange={(name, value) =>
-              setFormData((prev) => ({ ...prev, [name]: value }))
-            }
-          />
+        <FormBuilder
+          fields={productFormFields}
+          values={formData}
+          onChange={(name, value) =>
+            setFormData((prev) => ({ ...prev, [name]: value }))
+          }
+          showErrors={showErrors}
+        />
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Product Attachment

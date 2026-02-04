@@ -46,6 +46,7 @@ export default function ExhibitionsPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -89,6 +90,7 @@ export default function ExhibitionsPage() {
       endTime: '',
       active: true,
     });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -109,6 +111,7 @@ export default function ExhibitionsPage() {
       endTime,
       active: exhibition.active ?? true,
     });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -120,6 +123,14 @@ export default function ExhibitionsPage() {
   const handleSubmit = async () => {
     if (!isAdmin) return;
     if (isSubmitting) return;
+    if (!formData.name || !formData.location || !formData.startDate || !formData.endDate) {
+      setShowErrors(true);
+      toast({
+        title: "Please fill all required fields",
+        variant: "warning",
+      });
+      return;
+    }
     setIsSubmitting(true);
 
     const payload = {
@@ -143,6 +154,7 @@ export default function ExhibitionsPage() {
       await fetchExhibitions();
       setIsModalOpen(false);
       setEditingId(null);
+      setShowErrors(false);
       toast({
         title: isEditing ? "Exhibition updated" : "Exhibition created",
         variant: "success",
@@ -280,7 +292,7 @@ export default function ExhibitionsPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Exhibition Name
+                Exhibition Name <span className="text-red-600">*</span>
               </label>
               <Input
                 value={formData.name}
@@ -288,11 +300,13 @@ export default function ExhibitionsPage() {
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 placeholder="Enter exhibition name"
+                required
+                aria-invalid={showErrors && !formData.name}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Location
+                Location <span className="text-red-600">*</span>
               </label>
               <Input
                 value={formData.location}
@@ -300,12 +314,14 @@ export default function ExhibitionsPage() {
                   setFormData((prev) => ({ ...prev, location: e.target.value }))
                 }
                 placeholder="Enter location"
+                required
+                aria-invalid={showErrors && !formData.location}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date
+                  Start Date <span className="text-red-600">*</span>
                 </label>
                 <Input
                   type="date"
@@ -313,6 +329,8 @@ export default function ExhibitionsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, startDate: e.target.value }))
                   }
+                  required
+                  aria-invalid={showErrors && !formData.startDate}
                 />
               </div>
               <div>
@@ -331,7 +349,7 @@ export default function ExhibitionsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date
+                  End Date <span className="text-red-600">*</span>
                 </label>
                 <Input
                   type="date"
@@ -339,6 +357,8 @@ export default function ExhibitionsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, endDate: e.target.value }))
                   }
+                  required
+                  aria-invalid={showErrors && !formData.endDate}
                 />
               </div>
               <div>

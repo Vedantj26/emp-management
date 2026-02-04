@@ -24,6 +24,7 @@ export default function UsersPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ username: '', password: '', role: 'USER' });
@@ -51,12 +52,14 @@ export default function UsersPage() {
   const handleAddClick = () => {
     setEditingId(null);
     setFormData({ username: '', password: '', role: 'USER' });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
   const handleEditClick = (user: User) => {
     setEditingId(user.id);
     setFormData({ username: user.username, password: '', role: user.role });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -70,6 +73,7 @@ export default function UsersPage() {
     const isEditing = Boolean(editingId);
 
     if (!formData.username || !formData.role || (!isEditing && !formData.password)) {
+      setShowErrors(true);
       toast({
         title: "Please fill all required fields",
         variant: "warning",
@@ -91,6 +95,7 @@ export default function UsersPage() {
 
       await fetchUsers();
       setIsModalOpen(false);
+      setShowErrors(false);
       toast({
         title: isEditing ? "User updated" : "User created",
         variant: "success",
@@ -226,13 +231,14 @@ export default function UsersPage() {
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
         >
-          <FormBuilder
-            fields={userFormFields}
-            values={formData}
-            onChange={(name, value) =>
-              setFormData((prev) => ({ ...prev, [name]: value }))
-            }
-          />
+        <FormBuilder
+          fields={userFormFields}
+          values={formData}
+          onChange={(name, value) =>
+            setFormData((prev) => ({ ...prev, [name]: value }))
+          }
+          showErrors={showErrors}
+        />
         </FormModal>
         <ConfirmDialog
           open={isConfirmOpen}

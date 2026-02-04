@@ -32,6 +32,7 @@ interface FormBuilderProps {
   onChange: (name: string, value: any) => void;
   onFieldChange?: (values: Record<string, any>) => void;
   scrollable?: boolean;
+  showErrors?: boolean;
 }
 
 export default function FormBuilder({
@@ -39,9 +40,16 @@ export default function FormBuilder({
   values,
   onChange,
   scrollable = false,
+  showErrors = false,
 }: FormBuilderProps) {
   const renderField = (field: FormField) => {
     const value = values[field.name];
+    const isInvalid =
+      Boolean(showErrors && field.required) &&
+      (value === undefined ||
+        value === null ||
+        value === '' ||
+        (Array.isArray(value) && value.length === 0));
 
     if (field.renderCustom) {
       return (
@@ -70,6 +78,7 @@ export default function FormBuilder({
               onChange={(e) => onChange(field.name, e.target.value)}
               placeholder={field.placeholder}
               rows={field.rows || 4}
+              aria-invalid={isInvalid}
             />
           </div>
         );
@@ -82,7 +91,7 @@ export default function FormBuilder({
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
             <Select value={value} onValueChange={(val) => onChange(field.name, val)}>
-              <SelectTrigger>
+              <SelectTrigger aria-invalid={isInvalid}>
                 <SelectValue placeholder={field.placeholder || 'Select an option'} />
               </SelectTrigger>
               <SelectContent>
@@ -103,6 +112,7 @@ export default function FormBuilder({
               id={field.name}
               checked={value}
               onCheckedChange={(checked) => onChange(field.name, checked)}
+              aria-invalid={isInvalid}
             />
             <label htmlFor={field.name} className="text-sm font-medium text-gray-700">
               {field.label}
@@ -121,6 +131,7 @@ export default function FormBuilder({
               type="file"
               onChange={(e) => onChange(field.name, e.target.files?.[0]?.name || '')}
               className="cursor-pointer"
+              aria-invalid={isInvalid}
             />
           </div>
         );
@@ -137,6 +148,7 @@ export default function FormBuilder({
               value={value}
               onChange={(e) => onChange(field.name, e.target.value)}
               placeholder={field.placeholder}
+              aria-invalid={isInvalid}
             />
           </div>
         );
@@ -156,6 +168,7 @@ export default function FormBuilder({
               value={value}
               onChange={(e) => onChange(field.name, e.target.value)}
               placeholder={field.placeholder}
+              aria-invalid={isInvalid}
             />
           </div>
         );

@@ -121,6 +121,7 @@ export default function VisitorsPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     fileName: string;
@@ -216,6 +217,7 @@ export default function VisitorsPage() {
       exhibitionId: 0,
       productIds: [],
     });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -251,6 +253,7 @@ export default function VisitorsPage() {
       ),
     });
 
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -281,6 +284,7 @@ export default function VisitorsPage() {
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (!formData.name || !formData.email || !formData.phone || !formData.exhibitionId || !formData.consent) {
+      setShowErrors(true);
       toast({
         title: "Please fill all required fields",
         variant: "warning",
@@ -297,6 +301,7 @@ export default function VisitorsPage() {
 
       setIsModalOpen(false);
       setEditingId(null);
+      setShowErrors(false);
       toast({
         title: "Visitor created",
         variant: "success",
@@ -432,6 +437,7 @@ export default function VisitorsPage() {
                 }
                 placeholder="Enter visitor name"
                 required
+                aria-invalid={showErrors && !formData.name}
                 disabled={isViewMode}
               />
             </div>
@@ -447,6 +453,7 @@ export default function VisitorsPage() {
                 }
                 placeholder="Enter email"
                 required
+                aria-invalid={showErrors && !formData.email}
                 disabled={isViewMode}
               />
             </div>
@@ -462,6 +469,7 @@ export default function VisitorsPage() {
                 placeholder="Enter phone"
                 maxLength={10}
                 required
+                aria-invalid={showErrors && !formData.phone}
                 disabled={isViewMode}
               />
             </div>
@@ -515,7 +523,7 @@ export default function VisitorsPage() {
                 }
                 disabled={isViewMode}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-invalid={showErrors && !formData.exhibitionId}>
                   <SelectValue placeholder="Select exhibition" />
                 </SelectTrigger>
                 <SelectContent>
@@ -740,6 +748,7 @@ export default function VisitorsPage() {
                   onCheckedChange={(checked) =>
                     setFormData((prev) => ({ ...prev, consent: Boolean(checked) }))
                   }
+                  aria-invalid={showErrors && !formData.consent}
                   disabled={isViewMode}
                 />
                 I agree to be contacted regarding products, services, and future updates related to Nixel.

@@ -113,6 +113,7 @@ export default function EmployeesPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -132,6 +133,7 @@ export default function EmployeesPage() {
       department: '',
       position: '',
     });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -144,6 +146,7 @@ export default function EmployeesPage() {
       department: employee.department,
       position: employee.position,
     });
+    setShowErrors(false);
     setIsModalOpen(true);
   };
 
@@ -154,6 +157,14 @@ export default function EmployeesPage() {
 
   const handleSubmit = () => {
     if (isSubmitting) return;
+    if (!formData.name || !formData.email || !formData.department || !formData.position) {
+      setShowErrors(true);
+      toast({
+        title: "Please fill all required fields",
+        variant: "warning",
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const isEditing = Boolean(editingId);
@@ -173,6 +184,7 @@ export default function EmployeesPage() {
         ]);
       }
       setIsModalOpen(false);
+      setShowErrors(false);
       toast({
         title: isEditing ? "Employee updated" : "Employee created",
         variant: "success",
@@ -275,13 +287,14 @@ export default function EmployeesPage() {
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
         >
-          <FormBuilder
-            fields={employeeFormFields}
-            values={formData}
-            onChange={(name, value) =>
-              setFormData((prev) => ({ ...prev, [name]: value }))
-            }
-          />
+        <FormBuilder
+          fields={employeeFormFields}
+          values={formData}
+          onChange={(name, value) =>
+            setFormData((prev) => ({ ...prev, [name]: value }))
+          }
+          showErrors={showErrors}
+        />
         </FormModal>
 
         <ConfirmDialog

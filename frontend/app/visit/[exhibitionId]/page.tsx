@@ -61,6 +61,7 @@ export default function VisitorRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     fileName: string;
@@ -143,6 +144,14 @@ export default function VisitorRegistrationPage() {
     e.preventDefault();
 
     try {
+      if (!isFormValid) {
+        setShowErrors(true);
+        toast({
+          title: 'Please fill all required fields',
+          variant: 'warning',
+        });
+        return;
+      }
       startGlobalLoader();
       setIsSubmitting(true);
       setError(null);
@@ -204,6 +213,7 @@ export default function VisitorRegistrationPage() {
       setDesignation('');
       setCityState('');
       setSelectedProducts([]);
+      setShowErrors(false);
       setCompanyType([]);
       setCompanyTypeOther('');
       setIndustry([]);
@@ -331,6 +341,7 @@ export default function VisitorRegistrationPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  aria-invalid={showErrors && !name}
                   disabled={isSubmitting}
                   className="text-base"
                 />
@@ -377,6 +388,7 @@ export default function VisitorRegistrationPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  aria-invalid={showErrors && !email}
                   disabled={isSubmitting}
                   className="text-base"
                 />
@@ -391,8 +403,12 @@ export default function VisitorRegistrationPage() {
                   type="tel"
                   placeholder="+1 (555) 123-4567"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    const next = e.target.value.replace(/\D/g, '').slice(0, 10)
+                    setPhone(next)
+                  }}
                   required
+                  aria-invalid={showErrors && !phone}
                   disabled={isSubmitting}
                   className="text-base"
                 />
@@ -619,6 +635,7 @@ export default function VisitorRegistrationPage() {
                   checked={consent}
                   onCheckedChange={(checked) => setConsent(Boolean(checked))}
                   disabled={isSubmitting}
+                  aria-invalid={showErrors && !consent}
                 />
                 I agree to be contacted regarding products, services, and future updates related to Nixel.
                 <span className="text-red-600">*</span>
