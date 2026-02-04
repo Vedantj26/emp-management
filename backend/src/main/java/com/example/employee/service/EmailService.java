@@ -149,22 +149,45 @@
             Email cc1 = new Email("govind.bharkade@nixelsoft.com");
             Email cc2 = new Email("sana.chougle@nixelsoft.com");
 
+            String productNames = products.stream()
+                    .map(Product::getName)
+                    .distinct()
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("our solutions");
+
+            String signature = """
+                    Best Regards.<br/>
+                    Govind Bharkade<br/>
+                    Revenue &amp; Partnership<br/>
+                    Corporate Office Address:<br/>
+                    Nixel Software Solutions Pvt. Ltd.<br/>
+                    Ambrosia Galaxy, Innov8 Workspaces,<br/>
+                    7th Floor, Pan card club Road,<br/>
+                    Baner, Pune, Maharashtra, India 411069<br/>
+                    Mobile: +91 9172014303<br/>
+                    Email: Govind.bharkade@nixelsoft.com<br/>
+                    Web: www.nixelsoft.com<br/>
+                    <br/>
+                    <img src="cid:nixel-logo" alt="Nixel" style="max-width:220px; height:auto;" />
+                    """;
+
             StringBuilder body = new StringBuilder();
-            body.append("Dear ").append(visitorName).append(",\n\n")
-                    .append("Thank you for visiting us at ").append(exhibitionName).append(".\n")
-                    .append("Please find attached the product details you showed interest in:\n\n");
+            body.append("Dear ").append(visitorName).append(",<br/><br/>")
+                    .append("Thank you for visiting our stall at ").append(exhibitionName)
+                    .append(" and taking the time to learn about our ")
+                    .append(productNames).append(" solutions.<br/><br/>")
+                    .append("We enjoyed discussing how ").append(productNames)
+                    .append(" can help your business with integrated modules for sales, inventory, accounting, HR, and more—tailored to your specific needs.<br/><br/>")
+                    .append("If you’d like to dive deeper into ").append(productNames)
+                    .append(" implementation, customization, or support, please let us know. We’d be glad to schedule a follow-up discussion.<br/><br/>")
+                    .append("We appreciate your interest and look forward to assisting you in your digital transformation journey.<br/><br/>")
+                    .append(signature);
 
-            for (Product product : products) {
-                body.append("- ").append(product.getName()).append("\n");
-            }
-
-            body.append("\nRegards,\nExhibition Team");
-
-            Content content = new Content("text/plain", body.toString());
+            Content content = new Content("text/html", body.toString());
 
             Mail mail = new Mail();
             mail.setFrom(from);
-            mail.setSubject("Product Details from Exhibition");
+            mail.setSubject("Thank You for Your Interest in " + productNames + " Solutions");
             mail.addContent(content);
 
             Personalization personalization = new Personalization();
@@ -173,6 +196,23 @@
             personalization.addCc(cc2);
 
             mail.addPersonalization(personalization);
+
+            // Inline logo
+            try {
+                Path logoPath = Paths.get("src/main/resources/documents/Nixel.jpeg");
+                if (Files.exists(logoPath)) {
+                    byte[] logoBytes = Files.readAllBytes(logoPath);
+                    Attachments logo = new Attachments();
+                    logo.setFilename("Nixel.jpeg");
+                    logo.setType("image/jpeg");
+                    logo.setDisposition("inline");
+                    logo.setContentId("nixel-logo");
+                    logo.setContent(Base64.getEncoder().encodeToString(logoBytes));
+                    mail.addAttachments(logo);
+                }
+            } catch (IOException e) {
+                logger.warn("Failed to attach inline logo for visitor email: {}", e.getMessage());
+            }
 
             // 📎 Attach product files
             for (Product product : products) {
