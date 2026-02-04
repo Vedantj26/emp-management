@@ -1,5 +1,6 @@
 package com.example.employee.controller;
 
+import com.example.employee.dto.VisitorCreateResponse;
 import com.example.employee.dto.VisitorRequest;
 import com.example.employee.model.Visitor;
 import com.example.employee.service.VisitorService;
@@ -18,7 +19,7 @@ public class VisitorController {
     private final VisitorService visitorService;
 
     @PostMapping
-    public Visitor createVisitor(@RequestBody VisitorRequest request) {
+    public VisitorCreateResponse createVisitor(@RequestBody VisitorRequest request) {
         return visitorService.createVisitorPublic(request);
     }
 

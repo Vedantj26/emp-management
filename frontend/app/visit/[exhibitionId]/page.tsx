@@ -200,6 +200,14 @@ export default function VisitorRegistrationPage() {
         throw new Error(message);
       }
 
+      const responseBody = await response.json();
+      if (responseBody?.emailSent === false) {
+        toast({
+          title: responseBody?.emailError || 'Email failed to send',
+          variant: 'warning',
+        });
+      }
+
       setSuccess(true);
       toast({
         title: 'Registration submitted',

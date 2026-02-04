@@ -1,11 +1,14 @@
 package com.example.employee.service.impl;
 
+import com.example.employee.dto.VisitorCreateResponse;
 import com.example.employee.dto.VisitorRequest;
 import com.example.employee.model.*;
 import com.example.employee.repository.*;
 import com.example.employee.service.EmailService;
 import com.example.employee.service.VisitorService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,8 @@ import java.util.HashSet;
 @Service
 @RequiredArgsConstructor
 public class VisitorServiceImpl implements VisitorService {
+
+    private static final Logger logger = LoggerFactory.getLogger(VisitorServiceImpl.class);
 
     private final VisitorRepository visitorRepository;
     private final ProductRepository productRepository;
@@ -104,9 +109,11 @@ public class VisitorServiceImpl implements VisitorService {
     }
 
     @Override
-    public Visitor createVisitorPublic(VisitorRequest request) {
+    public VisitorCreateResponse createVisitorPublic(VisitorRequest request) {
 
         Visitor visitor = createVisitorInternal(request);
+        boolean emailSent = true;
+        String emailError = null;
 
         try {
             emailService.sendVisitorProductEmail(
@@ -115,13 +122,15 @@ public class VisitorServiceImpl implements VisitorService {
                     visitor.getExhibition().getName(),
                     visitorProductRepository.findProductsByVisitorId(visitor.getId())
             );
+            logger.info("Visitor email sent to {}", visitor.getEmail());
         } catch (Exception e) {
-            // 🔥 DO NOT FAIL PUBLIC FLOW
-            System.err.println("Email failed for visitor " + visitor.getEmail());
-            e.printStackTrace();
+            // Do not fail the flow, but record the failure for the client.
+            emailSent = false;
+            emailError = e.getMessage();
+            logger.error("Email failed for visitor {}: {}", visitor.getEmail(), e.getMessage(), e);
         }
 
-        return visitor;
+        return new VisitorCreateResponse(visitor, emailSent, emailError);
     }
 
     @Override

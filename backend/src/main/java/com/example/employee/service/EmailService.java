@@ -8,6 +8,8 @@
     import com.sendgrid.helpers.mail.objects.Email;
     import com.sendgrid.helpers.mail.objects.Personalization;
     import lombok.RequiredArgsConstructor;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
     import org.springframework.beans.factory.annotation.Value;
     import org.springframework.core.io.ByteArrayResource;
     import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@
     @Service
     @RequiredArgsConstructor
     public class EmailService {
+
+        private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
         private final SendGrid sendGrid;
 
@@ -100,6 +104,7 @@
                             "SendGrid failed: " + response.getStatusCode() + " " + response.getBody()
                     );
                 }
+                logger.info("SendGrid email sent successfully. Status: {}", response.getStatusCode());
 
             } catch (IOException e) {
                 throw new RuntimeException("Failed to send email via SendGrid", e);

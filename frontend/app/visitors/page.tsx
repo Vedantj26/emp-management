@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Trash2 } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 import { getExhibitions } from '@/api/exhibitions';
 import { getProducts } from '@/api/products';
 import { createVisitor, getVisitorsByExhibition } from '@/api/visitors';
@@ -293,10 +293,17 @@ export default function VisitorsPage() {
     }
     setIsSubmitting(true);
     try {
-      await createVisitor(formData);
+      const res = await createVisitor(formData);
 
       if (selectedExhibitionId) {
         fetchVisitorsByExhibition(selectedExhibitionId);
+      }
+
+      if (res.data?.emailSent === false) {
+        toast({
+          title: res.data.emailError || "Email failed to send",
+          variant: "warning",
+        });
       }
 
       setIsModalOpen(false);
@@ -391,7 +398,7 @@ export default function VisitorsPage() {
                         className="h-8 w-8 md:h-9 md:w-9"
                         onClick={() => handleEditClick(row)}
                       >
-                        ????
+                        <Eye size={16} />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>View</TooltipContent>

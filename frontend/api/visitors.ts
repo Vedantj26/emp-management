@@ -36,8 +36,14 @@ export interface Visitor {
     visitorProducts?: { id: number; product: Product }[];
 }
 
+export interface VisitorCreateResponse {
+    visitor: Visitor;
+    emailSent: boolean;
+    emailError?: string;
+}
+
 export const createVisitor = (data: Visitor) =>
-    api.post("/api/visitors", data);
+    api.post<VisitorCreateResponse>("/api/visitors", data);
 
 export const getAllVisitors = () =>
     api.get("/api/visitors/all");
