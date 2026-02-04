@@ -794,11 +794,10 @@ export default function VisitorsPage() {
 
                         const isPdf = ext === 'pdf';
 
-                        const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
                         setPreviewFile({
                           url: isPdf
-                            ? `${apiBase}/api/products/preview/${product.attachment}#toolbar=0&navpanes=0&scrollbar=0`
-                            : `${apiBase}/api/products/download/${product.attachment}`,
+                            ? `/api/products/preview/${product.attachment}#toolbar=0&navpanes=0&scrollbar=0`
+                            : `/api/products/download/${product.attachment}`,
                           fileName: product.attachment,
                           type: ext || '',
                         });

@@ -7,13 +7,13 @@ export interface UserPayload {
     role: string;
 }
 
-export const getUsers = () => api.get("/api/users");
+export const getUsers = () => api.get("/users");
 
 export const createUser = (data: UserPayload) =>
-    api.post("/api/users", data);
+    api.post("/users", data);
 
 export const updateUser = (id: number, data: Omit<UserPayload, "password">) =>
-    api.put(`/api/users/${id}`, data);
+    api.put(`/users/${id}`, data);
 
 export const deleteUser = (id: number) =>
-    api.delete(`/api/users/${id}`);
+    api.delete(`/users/${id}`);

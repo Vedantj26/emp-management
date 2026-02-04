@@ -86,14 +86,13 @@ export default function ProductsPage() {
   const handleAttachmentClick = (filename: string) => {
     const ext = filename.split(".").pop()?.toLowerCase();
 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
     setPreviewFile({
       fileName: filename,
       type: ext || "unknown",
       url:
         ext === "pdf"
-          ? `${apiBase}/api/products/preview/${filename}#toolbar=0&navpanes=0&scrollbar=0`
-          : `${apiBase}/api/products/download/${filename}`,
+          ? `/api/products/preview/${filename}#toolbar=0&navpanes=0&scrollbar=0`
+          : `/api/products/download/${filename}`,
     });
 
     setIsPreviewOpen(true);

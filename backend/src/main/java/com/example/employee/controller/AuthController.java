@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping({"/auth", "/api/auth"})
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${app.frontend-url}")
+@CrossOrigin
 public class AuthController {
 
     private final UserRepository userRepository;

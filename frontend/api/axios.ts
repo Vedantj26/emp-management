@@ -8,8 +8,11 @@ import { clearAuthData } from "@/lib/auth";
 import { startGlobalLoader, stopGlobalLoader } from "@/hooks/use-global-loader";
 
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api",
   withCredentials: true,
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 api.interceptors.request.use(
@@ -30,11 +33,14 @@ api.interceptors.response.use(
   },
   (error: AxiosError) => {
     stopGlobalLoader();
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       clearAuthData();
       if (typeof window !== "undefined") {
         window.location.href = "/login";
       }
+    }
+    if (error.response?.status === 403) {
+      console.warn("Forbidden response", error.response?.config?.url);
     }
     return Promise.reject(error);
   }

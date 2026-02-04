@@ -18,8 +18,8 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
-    @Value("${app.frontend-url}")
-    private String frontendUrl;
+    @Value("${app.frontend-urls}")
+    private String frontendUrls;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,7 +28,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
                     config.setAllowCredentials(true);
-                    config.addAllowedOrigin(frontendUrl);
+                    for (String origin : frontendUrls.split(",")) {
+                        config.addAllowedOrigin(origin);
+                    }
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
                     return config;
@@ -41,6 +43,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/download/**").permitAll()
                         .requestMatchers("/api/products/preview/**").permitAll()
                         .requestMatchers(

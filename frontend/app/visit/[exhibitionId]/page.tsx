@@ -29,7 +29,6 @@ interface Product {
 export default function VisitorRegistrationPage() {
   const params = useParams();
   const exhibitionId = params.exhibitionId as string;
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
 
   // Form state
   const [name, setName] = useState('');
@@ -78,7 +77,9 @@ export default function VisitorRegistrationPage() {
         setError(null);
 
         // Fetch exhibition details
-        const exhibitionRes = await fetch(`${apiBase}/api/exhibitions/public/${exhibitionId}`)
+        const exhibitionRes = await fetch(`/api/exhibitions/public/${exhibitionId}`, {
+          headers: { 'ngrok-skip-browser-warning': 'true' },
+        })
 
         if (!exhibitionRes.ok) {
           throw new Error('Failed to load exhibition');
@@ -87,7 +88,9 @@ export default function VisitorRegistrationPage() {
         setExhibition(exhibitionData);
 
         // Fetch products for exhibition
-        const productsRes = await fetch(`${apiBase}/api/products/public`)
+        const productsRes = await fetch(`/api/products/public`, {
+          headers: { 'ngrok-skip-browser-warning': 'true' },
+        })
 
         if (!productsRes.ok) {
           throw new Error('Failed to load products');
@@ -156,10 +159,11 @@ export default function VisitorRegistrationPage() {
       setIsSubmitting(true);
       setError(null);
 
-      const response = await fetch(`${apiBase}/api/visitors`, {
+      const response = await fetch(`/api/visitors`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           name,
