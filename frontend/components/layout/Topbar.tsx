@@ -58,10 +58,20 @@ export default function Topbar() {
 
       {/* Right side icons and menu */}
       <div className="flex items-center justify-end gap-2 md:gap-3 ml-auto">
-        <Button variant="ghost" size="icon" className="h-8 w-8 md:h-9 md:w-9 p-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          className="h-8 w-8 md:h-9 md:w-9 p-0 opacity-50 cursor-not-allowed"
+        >
           <Bell size={16} className="md:w-5 md:h-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="hidden md:flex h-8 w-8 md:h-9 md:w-9 p-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          className="hidden md:flex h-8 w-8 md:h-9 md:w-9 p-0 opacity-50 cursor-not-allowed"
+        >
           <MessageCircle size={16} className="md:w-5 md:h-5" />
         </Button>
 
@@ -76,7 +86,7 @@ export default function Topbar() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="gap-2 cursor-pointer">
+            <DropdownMenuItem className="gap-2 opacity-50 cursor-not-allowed" disabled>
               <User size={16} />
               Profile
             </DropdownMenuItem>

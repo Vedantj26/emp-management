@@ -1,12 +1,6 @@
 'use client';
 
-import { SelectItem } from "@/components/ui/select"
-import { SelectContent } from "@/components/ui/select"
-import { SelectValue } from "@/components/ui/select"
-import { SelectTrigger } from "@/components/ui/select"
-import { Select } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import DataTable from '@/components/ui/DataTable';
 import FormModal from '@/components/ui/FormModal';
@@ -15,6 +9,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { createUser, deleteUser, getUsers, updateUser } from '@/api/users';
 
 interface User extends Record<string, unknown> {
   id: number;
@@ -22,53 +17,39 @@ interface User extends Record<string, unknown> {
   role: string;
 }
 
-const initialUsers: User[] = [
-  { id: 1, username: 'admin_user', role: 'Admin' },
-  { id: 2, username: 'john_doe', role: 'User' },
-  { id: 3, username: 'jane_smith', role: 'Admin' },
-  { id: 4, username: 'mike_wilson', role: 'User' },
-];
-
-const userFormFields: FormField[] = [
-  {
-    name: 'username',
-    label: 'Username',
-    type: 'text',
-    placeholder: 'Enter username',
-    required: true,
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    type: 'password',
-    placeholder: 'Enter password',
-    required: true,
-  },
-  {
-    name: 'role',
-    label: 'Role',
-    type: 'select',
-    options: [
-      { label: 'Admin', value: 'Admin' },
-      { label: 'User', value: 'User' },
-    ],
-    required: true,
-  },
-];
-
 export default function UsersPage() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ username: '', password: '', role: 'User' });
+  const [formData, setFormData] = useState({ username: '', password: '', role: 'USER' });
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await getUsers();
+      setUsers(res.data);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        (err instanceof Error ? err.message : "Failed to fetch users");
+      console.error("Failed to fetch users", err);
+      toast({
+        title: message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAddClick = () => {
     setEditingId(null);
-    setFormData({ username: '', password: '', role: 'User' });
+    setFormData({ username: '', password: '', role: 'USER' });
     setIsModalOpen(true);
   };
 
@@ -83,35 +64,43 @@ export default function UsersPage() {
     setIsConfirmOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isSubmitting) return;
+    const isEditing = Boolean(editingId);
+
+    if (!formData.username || !formData.role || (!isEditing && !formData.password)) {
+      toast({
+        title: "Please fill all required fields",
+        variant: "warning",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const isEditing = Boolean(editingId);
-
-      if (editingId) {
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === editingId
-              ? { ...u, username: formData.username, role: formData.role }
-              : u
-          )
-        );
+      if (isEditing && editingId) {
+        await updateUser(editingId, { username: formData.username, role: formData.role });
       } else {
-        setUsers((prev) => [
-          ...prev,
-          { id: Math.max(...prev.map((u) => u.id), 0) + 1, ...formData },
-        ]);
+        await createUser({
+          username: formData.username,
+          password: formData.password,
+          role: formData.role,
+        });
       }
+
+      await fetchUsers();
       setIsModalOpen(false);
       toast({
         title: isEditing ? "User updated" : "User created",
         variant: "success",
       });
-    } catch (err) {
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        (err instanceof Error ? err.message : "Failed to save user");
       console.error("Failed to save user", err);
       toast({
-        title: "Failed to save user",
+        title: message,
         variant: "destructive",
       });
     } finally {
@@ -119,28 +108,63 @@ export default function UsersPage() {
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
     try {
       if (deleteId) {
-        setUsers((prev) => prev.filter((u) => u.id !== deleteId));
+        await deleteUser(deleteId);
+        await fetchUsers();
         setIsConfirmOpen(false);
         toast({
           title: "User deleted",
           variant: "success",
         });
       }
-    } catch (err) {
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        (err instanceof Error ? err.message : "Failed to delete user");
       console.error("Failed to delete user", err);
       toast({
-        title: "Failed to delete user",
+        title: message,
         variant: "destructive",
       });
     } finally {
       setIsDeleting(false);
     }
   };
+
+  const userFormFields: FormField[] = [
+    {
+      name: 'username',
+      label: 'Username',
+      type: 'text',
+      placeholder: 'Enter username',
+      required: true,
+    },
+    ...(editingId
+      ? []
+      : [
+          {
+            name: 'password',
+            label: 'Password',
+            type: 'password',
+            placeholder: 'Enter password',
+            required: true,
+          } as FormField,
+        ]),
+    {
+      name: 'role',
+      label: 'Role',
+      type: 'select',
+      options: [
+        { label: 'Admin', value: 'ADMIN' },
+        { label: 'User', value: 'USER' },
+      ],
+      required: true,
+    },
+  ];
 
   return (
     <AdminLayout>
