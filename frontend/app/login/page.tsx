@@ -39,10 +39,8 @@ export default function LoginPage() {
     try {
       const res = await login(formData);
 
-      saveAuthData(res.data.token, {
-        id: res.data.id,
-        email: res.data.email,
-        username: res.data.username,
+      saveAuthData({
+        username: formData.username,
         role: res.data.role,
       });
       const role = res.data.role;

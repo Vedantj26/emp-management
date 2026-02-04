@@ -6,9 +6,13 @@ import com.example.employee.model.User;
 import com.example.employee.repository.UserRepository;
 import com.example.employee.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,6 +36,16 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
-        return ResponseEntity.ok(new LoginResponse(token, user.getRole()));
+        ResponseCookie cookie = ResponseCookie.from("access_token", token)
+                .httpOnly(true)
+                .secure(false)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofHours(8))
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new LoginResponse(token, user.getRole()));
     }
 }

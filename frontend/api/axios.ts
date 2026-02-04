@@ -4,22 +4,17 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
-import { getToken, clearAuthData } from "@/lib/auth";
+import { clearAuthData } from "@/lib/auth";
 import { startGlobalLoader, stopGlobalLoader } from "@/hooks/use-global-loader";
 
 const api: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     startGlobalLoader();
-    const token = getToken();
-
-    if (token) {
-      config.headers.set("Authorization", `Bearer ${token}`);
-    }
-
     return config;
   },
   (error: AxiosError) => {
@@ -35,7 +30,7 @@ api.interceptors.response.use(
   },
   (error: AxiosError) => {
     stopGlobalLoader();
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       clearAuthData();
       if (typeof window !== "undefined") {
         window.location.href = "/login";
