@@ -67,13 +67,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center">
-              <span className="text-white font-bold text-xl">TE</span>
-            </div>
+          <div className="flex items-center justify-center mb-4">
+            <img
+              src="/Nixel.jpeg"
+              alt="Nixel logo"
+              className="h-24 md:h-32 w-auto object-contain"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tech Expo</h1>
-          <p className="text-gray-600">Exhibition Management Dashboard</p>
         </div>
 
         {/* Login Card */}
@@ -130,20 +130,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Remember & Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="rounded border-gray-300 text-blue-600 cursor-pointer"
-                />
-                <span className="text-gray-700">Remember me</span>
-              </label>
-              <a href="#" className="text-blue-600 hover:underline">
-                Forgot password?
-              </a>
-            </div>
-
             {/* Submit Button */}
             <Button
               type="submit"
@@ -153,15 +139,6 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-          <p className="text-xs font-medium text-blue-900 mb-2">Demo Credentials:</p>
-          <div className="space-y-1 text-xs text-blue-800">
-            <p>Email: <code className="bg-blue-100 px-2 py-1 rounded font-mono">admin@techexpo.com</code></p>
-            <p>Password: <code className="bg-blue-100 px-2 py-1 rounded font-mono">password123</code></p>
-          </div>
         </div>
       </div>
     </div>

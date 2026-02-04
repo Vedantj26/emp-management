@@ -9,6 +9,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Employee extends Record<string, unknown> {
   id: number;
@@ -233,22 +234,32 @@ export default function EmployeesPage() {
               label: 'Actions',
               render: (_, row: any) => (
                 <div className="flex gap-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleEditClick(row)}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleDeleteClick(row.id)}
-                  >
-                    <Trash2 size={16} className="text-red-600" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleEditClick(row)}
+                      >
+                        <Edit size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleDeleteClick(row.id)}
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete</TooltipContent>
+                  </Tooltip>
                 </div>
               ),
             },

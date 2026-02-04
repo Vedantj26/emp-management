@@ -21,6 +21,7 @@ import { getExhibitions } from '@/api/exhibitions';
 import { getProducts } from '@/api/products';
 import { createVisitor, getVisitorsByExhibition } from '@/api/visitors';
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Visitor {
   id: number;
@@ -377,22 +378,32 @@ export default function VisitorsPage() {
               label: 'Actions',
               render: (_, row: any) => (
                 <div className="flex gap-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleEditClick(row)}
-                  >
-                    👁
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleDeleteClick(row.id)}
-                  >
-                    <Trash2 size={16} className="text-red-600" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleEditClick(row)}
+                      >
+                        ????
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>View</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleDeleteClick(row.id)}
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete</TooltipContent>
+                  </Tooltip>
                 </div>
               ),
             },
@@ -767,10 +778,11 @@ export default function VisitorsPage() {
 
                         const isPdf = ext === 'pdf';
 
+                        const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
                         setPreviewFile({
                           url: isPdf
-                            ? `http://localhost:8080/api/products/preview/${product.attachment}#toolbar=0&navpanes=0&scrollbar=0`
-                            : `http://localhost:8080/api/products/download/${product.attachment}`,
+                            ? `${apiBase}/api/products/preview/${product.attachment}#toolbar=0&navpanes=0&scrollbar=0`
+                            : `${apiBase}/api/products/download/${product.attachment}`,
                           fileName: product.attachment,
                           type: ext || '',
                         });

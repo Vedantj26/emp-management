@@ -18,6 +18,7 @@ import {
 } from "@/api/products";
 import { getAuthUser } from "@/lib/auth";
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Product extends Record<string, unknown> {
   id: number;
@@ -84,13 +85,14 @@ export default function ProductsPage() {
   const handleAttachmentClick = (filename: string) => {
     const ext = filename.split(".").pop()?.toLowerCase();
 
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
     setPreviewFile({
       fileName: filename,
       type: ext || "unknown",
       url:
         ext === "pdf"
-          ? `http://localhost:8080/api/products/preview/${filename}#toolbar=0&navpanes=0&scrollbar=0`
-          : `http://localhost:8080/api/products/download/${filename}`,
+          ? `${apiBase}/api/products/preview/${filename}#toolbar=0&navpanes=0&scrollbar=0`
+          : `${apiBase}/api/products/download/${filename}`,
     });
 
     setIsPreviewOpen(true);
@@ -210,15 +212,20 @@ export default function ProductsPage() {
               hideOnMobile: true,
               render: (value: any) =>
                 value ? (
-                  <button
-                    onClick={() => handleAttachmentClick(value)}
-                    className="flex items-center gap-2 hover:opacity-75 transition-opacity"
-                  >
-                    <FileText size={16} className="text-blue-600" />
-                    <span className="text-sm text-blue-600 hover:underline">
-                      {value}
-                    </span>
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleAttachmentClick(value)}
+                        className="flex items-center gap-2 hover:opacity-75 transition-opacity"
+                      >
+                        <FileText size={16} className="text-blue-600" />
+                        <span className="text-sm text-blue-600 hover:underline">
+                          {value}
+                        </span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Preview</TooltipContent>
+                  </Tooltip>
                 ) : (
                   <span className="text-gray-400">-</span>
                 ),
@@ -228,30 +235,45 @@ export default function ProductsPage() {
               label: 'Actions',
               render: (_, row: any) => (
                 <div className="flex gap-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleAttachmentClick(row.attachment!)}
-                  >
-                    <FileText size={16} className="text-blue-600" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleEditClick(row)}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9"
-                    onClick={() => handleDeleteClick(row.id)}
-                  >
-                    <Trash2 size={16} className="text-red-600" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleAttachmentClick(row.attachment!)}
+                      >
+                        <FileText size={16} className="text-blue-600" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Preview</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleEditClick(row)}
+                      >
+                        <Edit size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        onClick={() => handleDeleteClick(row.id)}
+                      >
+                        <Trash2 size={16} className="text-red-600" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete</TooltipContent>
+                  </Tooltip>
                 </div>
               ),
             },

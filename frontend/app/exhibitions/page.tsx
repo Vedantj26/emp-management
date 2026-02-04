@@ -7,10 +7,11 @@ import FormModal from '@/components/ui/FormModal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, QrCode } from 'lucide-react';
 import { getAuthUser } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   getExhibitions,
   createExhibition,
@@ -225,28 +226,42 @@ export default function ExhibitionsPage() {
                 label: 'Actions',
                 render: (_: any, row: any) => (
                   <div className="flex gap-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditClick(row)}
-                    >
-                      <Edit size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteClick(row.id)}
-                    >
-                      <Trash2 size={16} className="text-red-600" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setQrExhibitionId(row.id)}
-                      title="Show QR"
-                    >
-                      📱
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditClick(row)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteClick(row.id)}
+                        >
+                          <Trash2 size={16} className="text-red-600" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Delete</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setQrExhibitionId(row.id)}
+                        >
+                          <QrCode size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Show QR</TooltipContent>
+                    </Tooltip>
                   </div>
                 ),
               }]
