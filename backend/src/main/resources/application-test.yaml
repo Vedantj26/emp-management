@@ -1,0 +1,4 @@
+app:
+  frontend-url: https://test.nixelsoft.com
+
+API_TEST_URL: https://test-api.nixelsoft.com

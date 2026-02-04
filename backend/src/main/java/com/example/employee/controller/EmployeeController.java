@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${app.frontend-url}")
 public class EmployeeController {
 
     private final EmployeeService employeeService;

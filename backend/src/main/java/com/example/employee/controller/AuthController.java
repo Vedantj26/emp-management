@@ -17,7 +17,7 @@ import java.time.Duration;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${app.frontend-url}")
 public class AuthController {
 
     private final UserRepository userRepository;

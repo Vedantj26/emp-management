@@ -10,10 +10,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
   sendgrid:
     api-key: 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
@@ -22,3 +22,8 @@ spring:
   security:
     encryption:
       key: VIQ0MB0wYUCYXlAJ9J7Pug==
+
+app:
+  frontend-url: http://localhost:3000
+
+API_BASE_URL: http://localhost:8080

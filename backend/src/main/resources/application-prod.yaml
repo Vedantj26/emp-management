@@ -1,0 +1,4 @@
+app:
+  frontend-url: https://nixelsoft.com
+
+API_PROD_URL: https://api.nixelsoft.com
