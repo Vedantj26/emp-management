@@ -280,6 +280,13 @@ export default function VisitorsPage() {
       return { ...prev, [key]: next };
     });
   };
+  const toggleSingle = (value: string, key: keyof typeof formData) => {
+    setFormData((prev) => {
+      const current = prev[key] as string[];
+      const next = current[0] === value ? [] : [value];
+      return { ...prev, [key]: next };
+    });
+  };
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
@@ -672,7 +679,7 @@ export default function VisitorsPage() {
                       <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
                         <Checkbox
                           checked={formData.timeline.includes(option)}
-                          onCheckedChange={() => toggleMulti(option, 'timeline')}
+                          onCheckedChange={() => toggleSingle(option, 'timeline')}
                           disabled={isViewMode}
                         />
                         {option}
@@ -687,7 +694,7 @@ export default function VisitorsPage() {
                       <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
                         <Checkbox
                           checked={formData.budget.includes(option)}
-                          onCheckedChange={() => toggleMulti(option, 'budget')}
+                          onCheckedChange={() => toggleSingle(option, 'budget')}
                           disabled={isViewMode}
                         />
                         {option}

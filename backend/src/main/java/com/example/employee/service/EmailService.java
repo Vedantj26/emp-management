@@ -156,19 +156,28 @@
                     .orElse("our solutions");
 
             String signature = """
-                    Best Regards.<br/>
-                    Govind Bharkade<br/>
-                    Revenue &amp; Partnership<br/>
-                    Corporate Office Address:<br/>
-                    Nixel Software Solutions Pvt. Ltd.<br/>
-                    Ambrosia Galaxy, Innov8 Workspaces,<br/>
-                    7th Floor, Pan card club Road,<br/>
-                    Baner, Pune, Maharashtra, India 411069<br/>
-                    Mobile: +91 9172014303<br/>
-                    Email: Govind.bharkade@nixelsoft.com<br/>
-                    Web: www.nixelsoft.com<br/>
-                    <br/>
-                    <img src="cid:nixel-logo" alt="Nixel" style="max-width:220px; height:auto;" />
+                    <div style="margin-top:16px; padding-top:12px; border-top:1px solid #e5e7eb; font-family:Arial, sans-serif; font-size:13px; color:#374151;">
+                      <div style="font-weight:600; color:#111827; margin-bottom:2px;">Best Regards.</div>
+                      <div style="font-size:14px; font-weight:600; color:#0f172a;">Govind Bharkade</div>
+                      <div style="color:#475569; margin-bottom:6px;">Revenue &amp; Partnership</div>
+                      <div style="color:#111827; font-weight:600;">Corporate Office Address:</div>
+                      <div style="color:#475569;">Nixel Software Solutions Pvt. Ltd.</div>
+                      <div style="color:#475569;">Ambrosia Galaxy, Innov8 Workspaces,</div>
+                      <div style="color:#475569;">7th Floor, Pan card club Road,</div>
+                      <div style="color:#475569;">Baner, Pune, Maharashtra, India 411069</div>
+                      <div style="margin-top:6px; color:#111827;">
+                        Mobile: <span style="color:#475569;">+91 9172014303</span>
+                      </div>
+                      <div style="color:#111827;">
+                        Email: <span style="color:#475569;">Govind.bharkade@nixelsoft.com</span>
+                      </div>
+                      <div style="color:#111827;">
+                        Web: <span style="color:#475569;">www.nixelsoft.com</span>
+                      </div>
+                      <div style="margin-top:10px;">
+                        <img src="cid:nixel-logo" alt="Nixel" style="max-width:140px; height:auto;" />
+                      </div>
+                    </div>
                     """;
 
             StringBuilder body = new StringBuilder();

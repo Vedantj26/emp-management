@@ -130,6 +130,12 @@ export default function VisitorRegistrationPage() {
   ) => {
     setter((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
   };
+  const toggleSingle = (
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+  ) => {
+    setter((prev) => (prev[0] === value ? [] : [value]));
+  };
 
   const handlePreviewClick = (product: Product) => {
     if (product.attachment) {
@@ -142,6 +148,11 @@ export default function VisitorRegistrationPage() {
       setIsPreviewOpen(true);
     }
   };
+
+  const isEmailValid = (val: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  const isPhoneValid = phone.length === 10;
+  const isFormValid = name && isEmailValid(email) && isPhoneValid && exhibitionId && consent;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,8 +270,6 @@ export default function VisitorRegistrationPage() {
     }
   };
 
-  const isFormValid = name && email && phone && exhibitionId && consent;
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -288,27 +297,54 @@ export default function VisitorRegistrationPage() {
     );
   }
 
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 text-center">
+          <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900">Thank you for visiting us</h2>
+          <p className="text-sm text-gray-600 mt-2">
+            {name ? `${name}, ` : ''}we’ve received your details and will get back to you soon.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-8">
       <Card className="w-full max-w-2xl">
         {/* Exhibition Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 md:px-8 py-8 text-white">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            {exhibition?.name}
-          </h1>
-          {(exhibition?.location || exhibition?.date) && (
-            <p className="text-blue-100 text-sm md:text-base">
-              {exhibition?.location && (
-                <span>{exhibition.location}</span>
+        <div className="relative overflow-hidden px-6 md:px-8 py-7 md:py-8 text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0090d0] via-[#0b76b5] to-[#0a5f96]" />
+          <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -left-10 -bottom-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative flex items-start justify-between gap-6">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-wide text-white/90">
+                Visitor Registration
+              </div>
+              <h1 className="mt-3 text-3xl md:text-4xl font-bold leading-tight">
+                {exhibition?.name}
+              </h1>
+              {(exhibition?.location || exhibition?.date) && (
+                <p className="text-white/80 text-sm md:text-base mt-2">
+                  {exhibition?.location && <span>{exhibition.location}</span>}
+                  {exhibition?.location && exhibition?.date && <span> • </span>}
+                  {exhibition?.date && <span>{exhibition.date}</span>}
+                </p>
               )}
-              {exhibition?.location && exhibition?.date && (
-                <span> • </span>
-              )}
-              {exhibition?.date && <span>{exhibition.date}</span>}
-            </p>
-          )}
-          <p className="text-blue-100 mt-4">
-            Please fill the form below to receive product details
+            </div>
+            <div className="shrink-0 rounded-2xl bg-white/90 p-2 shadow-lg">
+              <img
+                src="/Nixel.jpeg"
+                alt="Nixel logo"
+                className="h-24 md:h-28 w-auto object-contain"
+              />
+            </div>
+          </div>
+          <p className="relative text-white/90 mt-4 text-sm md:text-base">
+            Please fill the form below to receive product details.
           </p>
         </div>
 
@@ -400,7 +436,7 @@ export default function VisitorRegistrationPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  aria-invalid={showErrors && !email}
+                  aria-invalid={showErrors && !isEmailValid(email)}
                   disabled={isSubmitting}
                   className="text-base"
                 />
@@ -420,7 +456,7 @@ export default function VisitorRegistrationPage() {
                     setPhone(next)
                   }}
                   required
-                  aria-invalid={showErrors && !phone}
+                  aria-invalid={showErrors && !isPhoneValid}
                   disabled={isSubmitting}
                   className="text-base"
                 />
@@ -567,7 +603,7 @@ export default function VisitorRegistrationPage() {
                     <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
                       <Checkbox
                         checked={timeline.includes(option)}
-                        onCheckedChange={() => toggleMulti(option, setTimeline)}
+                        onCheckedChange={() => toggleSingle(option, setTimeline)}
                         disabled={isSubmitting}
                       />
                       {option}
@@ -582,7 +618,7 @@ export default function VisitorRegistrationPage() {
                     <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
                       <Checkbox
                         checked={budget.includes(option)}
-                        onCheckedChange={() => toggleMulti(option, setBudget)}
+                        onCheckedChange={() => toggleSingle(option, setBudget)}
                         disabled={isSubmitting}
                       />
                       {option}

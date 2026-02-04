@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, LayoutDashboard, Presentation, Package, Users, UserCheck, Users2 } from 'lucide-react';
 import { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { getAuthUser } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
@@ -50,7 +51,12 @@ export default function Sidebar() {
   const user = getAuthUser();
   const role = user?.role;
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close the mobile sidebar on route change
+  React.useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <>

@@ -16,7 +16,7 @@ spring:
         format_sql: false
 
   sendgrid:
-    api-key: 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
+    api-key: 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
     from-email: sales@nixelsoft.com
 
   security:
