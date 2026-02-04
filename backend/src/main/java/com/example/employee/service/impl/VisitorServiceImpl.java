@@ -46,10 +46,35 @@ public class VisitorServiceImpl implements VisitorService {
                         HttpStatus.BAD_REQUEST, "Exhibition not found"));
 
         Visitor visitor = new Visitor();
+
         visitor.setName(request.getName());
         visitor.setEmail(request.getEmail());
         visitor.setPhone(request.getPhone());
         visitor.setCompanyName(request.getCompanyName());
+        visitor.setDesignation(request.getDesignation());
+        visitor.setCityState(request.getCityState());
+
+        visitor.setCompanyType(request.getCompanyType());
+        visitor.setCompanyTypeOther(request.getCompanyTypeOther());
+
+        visitor.setIndustry(request.getIndustry());
+        visitor.setIndustryOther(request.getIndustryOther());
+
+        visitor.setCompanySize(request.getCompanySize());
+        visitor.setInterestAreas(request.getInterestAreas());
+
+        visitor.setSolutions(request.getSolutions());
+        visitor.setSolutionsOther(request.getSolutionsOther());
+
+        visitor.setTimeline(request.getTimeline());
+        visitor.setBudget(request.getBudget());
+
+        visitor.setFollowUpMode(request.getFollowUpMode());
+        visitor.setBestTimeToContact(request.getBestTimeToContact());
+
+        visitor.setAdditionalNotes(request.getAdditionalNotes());
+        visitor.setConsent(request.getConsent());
+
         visitor.setExhibition(exhibition);
 
         Visitor savedVisitor = visitorRepository.save(visitor);

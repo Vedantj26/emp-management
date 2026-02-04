@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Bell, MessageCircle, ChevronDown, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { clearAuthData } from '@/lib/auth';
@@ -22,6 +22,8 @@ const exhibitions = [
 
 export default function Topbar() {
   const router = useRouter();
+  const pathname = usePathname();
+  const showExhibitionDropdown = pathname === '/dashboard';
   const [selectedExhibition, setSelectedExhibition] = useState(exhibitions[0]);
 
   const handleLogout = () => {
@@ -31,26 +33,28 @@ export default function Topbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 h-16 flex items-center justify-between z-30 md:left-56 px-4 md:px-6">
-      {/* Exhibition Dropdown - Hidden on mobile */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="gap-2 bg-transparent hidden md:flex max-w-xs truncate flex-1">
-            <span className="truncate">{selectedExhibition}</span>
-            <ChevronDown size={16} className="flex-shrink-0" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {exhibitions.map((exhibition) => (
-            <DropdownMenuItem
-              key={exhibition}
-              onClick={() => setSelectedExhibition(exhibition)}
-              className={selectedExhibition === exhibition ? 'bg-blue-50' : ''}
-            >
-              {exhibition}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* Exhibition Dropdown - Only on dashboard */}
+      {showExhibitionDropdown && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2 bg-transparent hidden md:flex max-w-xs truncate flex-1">
+              <span className="truncate">{selectedExhibition}</span>
+              <ChevronDown size={16} className="flex-shrink-0" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {exhibitions.map((exhibition) => (
+              <DropdownMenuItem
+                key={exhibition}
+                onClick={() => setSelectedExhibition(exhibition)}
+                className={selectedExhibition === exhibition ? 'bg-blue-50' : ''}
+              >
+                {exhibition}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* Right side icons and menu */}
       <div className="flex items-center justify-end gap-2 md:gap-3 ml-auto">

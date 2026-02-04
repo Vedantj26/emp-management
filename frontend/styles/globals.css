@@ -123,3 +123,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes top-loader-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(-20%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.top-loader-bar {
+  animation: top-loader-slide 1.2s ease-in-out infinite;
+}

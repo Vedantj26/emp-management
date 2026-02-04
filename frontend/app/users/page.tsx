@@ -14,6 +14,7 @@ import FormBuilder, { type FormField } from '@/components/ui/FormBuilder';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface User extends Record<string, unknown> {
   id: number;
@@ -59,6 +60,8 @@ export default function UsersPage() {
   const [users, setUsers] = useState(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ username: '', password: '', role: 'User' });
@@ -81,27 +84,61 @@ export default function UsersPage() {
   };
 
   const handleSubmit = () => {
-    if (editingId) {
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === editingId
-            ? { ...u, username: formData.username, role: formData.role }
-            : u
-        )
-      );
-    } else {
-      setUsers((prev) => [
-        ...prev,
-        { id: Math.max(...prev.map((u) => u.id), 0) + 1, ...formData },
-      ]);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const isEditing = Boolean(editingId);
+
+      if (editingId) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === editingId
+              ? { ...u, username: formData.username, role: formData.role }
+              : u
+          )
+        );
+      } else {
+        setUsers((prev) => [
+          ...prev,
+          { id: Math.max(...prev.map((u) => u.id), 0) + 1, ...formData },
+        ]);
+      }
+      setIsModalOpen(false);
+      toast({
+        title: isEditing ? "User updated" : "User created",
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Failed to save user", err);
+      toast({
+        title: "Failed to save user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsModalOpen(false);
   };
 
   const handleConfirmDelete = () => {
-    if (deleteId) {
-      setUsers((prev) => prev.filter((u) => u.id !== deleteId));
-      setIsConfirmOpen(false);
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      if (deleteId) {
+        setUsers((prev) => prev.filter((u) => u.id !== deleteId));
+        setIsConfirmOpen(false);
+        toast({
+          title: "User deleted",
+          variant: "success",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete user", err);
+      toast({
+        title: "Failed to delete user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -123,7 +160,7 @@ export default function UsersPage() {
               key: 'id',
               label: 'Actions',
               render: (_, row: any) => (
-                <div className="flex gap-1 md:gap-2">
+                <div className="flex gap-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -152,6 +189,7 @@ export default function UsersPage() {
           title={editingId ? 'Edit User' : 'Add User'}
           submitText={editingId ? 'Update' : 'Create'}
           onSubmit={handleSubmit}
+          isLoading={isSubmitting}
         >
           <FormBuilder
             fields={userFormFields}
@@ -169,6 +207,7 @@ export default function UsersPage() {
           confirmText="Delete"
           isDangerous
           onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
       </div>
     </AdminLayout>

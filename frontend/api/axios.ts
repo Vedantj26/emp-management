@@ -5,6 +5,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { getToken, clearAuthData } from "@/lib/auth";
+import { startGlobalLoader, stopGlobalLoader } from "@/hooks/use-global-loader";
 
 const api: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -12,6 +13,7 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    startGlobalLoader();
     const token = getToken();
 
     if (token) {
@@ -19,12 +21,20 @@ api.interceptors.request.use(
     }
 
     return config;
+  },
+  (error: AxiosError) => {
+    stopGlobalLoader();
+    return Promise.reject(error);
   }
 );
 
 api.interceptors.response.use(
-  (response: AxiosResponse): AxiosResponse => response,
+  (response: AxiosResponse): AxiosResponse => {
+    stopGlobalLoader();
+    return response;
+  },
   (error: AxiosError) => {
+    stopGlobalLoader();
     if (error.response?.status === 401) {
       clearAuthData();
       if (typeof window !== "undefined") {

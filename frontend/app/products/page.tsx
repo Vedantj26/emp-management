@@ -17,6 +17,7 @@ import {
   deleteProduct,
 } from "@/api/products";
 import { getAuthUser } from "@/lib/auth";
+import { toast } from '@/hooks/use-toast';
 
 interface Product extends Record<string, unknown> {
   id: number;
@@ -45,6 +46,8 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
@@ -118,6 +121,8 @@ export default function ProductsPage() {
 
   const handleSubmit = async () => {
     if (!isAdmin) return;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const productPayload = {
       name: formData.name,
@@ -133,6 +138,8 @@ export default function ProductsPage() {
     }
 
     try {
+      const isEditing = Boolean(editingId);
+
       if (editingId) {
         await updateProduct(editingId, form);
       } else {
@@ -142,20 +149,41 @@ export default function ProductsPage() {
       await fetchProducts();
       setIsModalOpen(false);
       setEditingId(null);
+      toast({
+        title: isEditing ? "Product updated" : "Product created",
+        variant: "success",
+      });
     } catch (err) {
       console.error("Failed to save product", err);
+      toast({
+        title: "Failed to save product",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!deleteId || !isAdmin) return;
+    if (isDeleting) return;
+    setIsDeleting(true);
 
     try {
       await deleteProduct(deleteId);
       await fetchProducts();
+      toast({
+        title: "Product deleted",
+        variant: "success",
+      });
     } catch (err) {
       console.error("Failed to delete product", err);
+      toast({
+        title: "Failed to delete product",
+        variant: "destructive",
+      });
     } finally {
+      setIsDeleting(false);
       setIsConfirmOpen(false);
       setDeleteId(null);
     }
@@ -199,7 +227,7 @@ export default function ProductsPage() {
               key: 'id',
               label: 'Actions',
               render: (_, row: any) => (
-                <div className="flex gap-1 md:gap-2">
+                <div className="flex gap-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -237,6 +265,7 @@ export default function ProductsPage() {
           title={editingId ? 'Edit Product' : 'Add Product'}
           submitText={editingId ? 'Update' : 'Create'}
           onSubmit={handleSubmit}
+          isLoading={isSubmitting}
         >
           <FormBuilder
             fields={productFormFields}
@@ -271,6 +300,7 @@ export default function ProductsPage() {
           confirmText="Delete"
           isDangerous
           onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
 
         {previewFile && (

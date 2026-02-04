@@ -8,6 +8,7 @@ import FormBuilder, { type FormField } from '@/components/ui/FormBuilder';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface Employee extends Record<string, unknown> {
   id: number;
@@ -109,6 +110,8 @@ export default function EmployeesPage() {
   const [employees, setEmployees] = useState(initialEmployees);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -149,27 +152,61 @@ export default function EmployeesPage() {
   };
 
   const handleSubmit = () => {
-    if (editingId) {
-      setEmployees((prev) =>
-        prev.map((e) =>
-          e.id === editingId
-            ? { ...e, ...formData }
-            : e
-        )
-      );
-    } else {
-      setEmployees((prev) => [
-        ...prev,
-        { id: Math.max(...prev.map((e) => e.id), 0) + 1, ...formData },
-      ]);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const isEditing = Boolean(editingId);
+
+      if (editingId) {
+        setEmployees((prev) =>
+          prev.map((e) =>
+            e.id === editingId
+              ? { ...e, ...formData }
+              : e
+          )
+        );
+      } else {
+        setEmployees((prev) => [
+          ...prev,
+          { id: Math.max(...prev.map((e) => e.id), 0) + 1, ...formData },
+        ]);
+      }
+      setIsModalOpen(false);
+      toast({
+        title: isEditing ? "Employee updated" : "Employee created",
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Failed to save employee", err);
+      toast({
+        title: "Failed to save employee",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsModalOpen(false);
   };
 
   const handleConfirmDelete = () => {
-    if (deleteId) {
-      setEmployees((prev) => prev.filter((e) => e.id !== deleteId));
-      setIsConfirmOpen(false);
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      if (deleteId) {
+        setEmployees((prev) => prev.filter((e) => e.id !== deleteId));
+        setIsConfirmOpen(false);
+        toast({
+          title: "Employee deleted",
+          variant: "success",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete employee", err);
+      toast({
+        title: "Failed to delete employee",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -195,7 +232,7 @@ export default function EmployeesPage() {
               key: 'id',
               label: 'Actions',
               render: (_, row: any) => (
-                <div className="flex gap-1 md:gap-2">
+                <div className="flex gap-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -225,6 +262,7 @@ export default function EmployeesPage() {
           title={editingId ? 'Edit Employee' : 'Add Employee'}
           submitText={editingId ? 'Update' : 'Create'}
           onSubmit={handleSubmit}
+          isLoading={isSubmitting}
         >
           <FormBuilder
             fields={employeeFormFields}
@@ -243,6 +281,7 @@ export default function EmployeesPage() {
           confirmText="Delete"
           isDangerous
           onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
       </div>
     </AdminLayout>

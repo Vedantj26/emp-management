@@ -20,6 +20,7 @@ import { Edit, Trash2 } from 'lucide-react';
 import { getExhibitions } from '@/api/exhibitions';
 import { getProducts } from '@/api/products';
 import { createVisitor, getVisitorsByExhibition } from '@/api/visitors';
+import { toast } from '@/hooks/use-toast';
 
 interface Visitor {
   id: number;
@@ -27,6 +28,22 @@ interface Visitor {
   email: string;
   phone: string;
   companyName: string;
+  designation?: string;
+  cityState?: string;
+  companyType?: string[];
+  companyTypeOther?: string;
+  industry?: string[];
+  industryOther?: string;
+  companySize?: string[];
+  interestAreas?: string[];
+  solutions?: string[];
+  solutionsOther?: string;
+  timeline?: string[];
+  budget?: string[];
+  followUpMode?: string[];
+  bestTimeToContact?: string[];
+  additionalNotes?: string;
+  consent?: boolean;
 
   exhibition: {
     id: number;
@@ -43,11 +60,66 @@ interface Visitor {
   }[];
 }
 
+const COMPANY_TYPES = [
+  'Startup',
+  'SME',
+  'Enterprise',
+  'Freelancer / Consultant',
+  'Educational Institution',
+  'Other',
+];
+
+const INDUSTRIES = [
+  'IT / Software',
+  'Manufacturing',
+  'Healthcare',
+  'Education',
+  'Retail / E-commerce',
+  'Finance',
+  'Other',
+];
+
+const COMPANY_SIZES = ['1–10', '11–50', '51–200', '201–500', '500+'];
+
+const INTEREST_AREAS = [
+  'Products',
+  'Services',
+  'Partnership / Collaboration',
+  'Demo / Trial',
+  'Pricing & Commercials',
+  'Hiring / Staffing',
+  'General Inquiry',
+];
+
+const SOLUTIONS = [
+  'SaaS Products',
+  'Custom Software Development',
+  'IT Staffing / Contract Hiring',
+  'ERP (SAP / Oracle / Odoo, etc.)',
+  'Cloud / AI / Data Services',
+  'Other',
+];
+
+const TIMELINES = [
+  'Immediate (0–1 month)',
+  'Short-term (1–3 months)',
+  'Medium-term (3–6 months)',
+  'Just exploring',
+];
+
+const BUDGETS = ['Not decided', 'Under 5 Lakhs', '5–20 Lakhs', '20 Lakhs+'];
+
+const FOLLOW_UP_MODES = ['Email', 'Phone Call', 'WhatsApp', 'Online Meeting'];
+
+const BEST_TIMES = ['Morning', 'Afternoon', 'Evening'];
+
 export default function VisitorsPage() {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     fileName: string;
@@ -63,6 +135,22 @@ export default function VisitorsPage() {
     email: "",
     phone: "",
     companyName: "",
+    designation: "",
+    cityState: "",
+    companyType: [] as string[],
+    companyTypeOther: "",
+    industry: [] as string[],
+    industryOther: "",
+    companySize: [] as string[],
+    interestAreas: [] as string[],
+    solutions: [] as string[],
+    solutionsOther: "",
+    timeline: [] as string[],
+    budget: [] as string[],
+    followUpMode: [] as string[],
+    bestTimeToContact: [] as string[],
+    additionalNotes: "",
+    consent: false,
     exhibitionId: 0,
     productIds: [] as number[],
   });
@@ -108,6 +196,22 @@ export default function VisitorsPage() {
       email: '',
       phone: '',
       companyName: '',
+      designation: '',
+      cityState: '',
+      companyType: [],
+      companyTypeOther: '',
+      industry: [],
+      industryOther: '',
+      companySize: [],
+      interestAreas: [],
+      solutions: [],
+      solutionsOther: '',
+      timeline: [],
+      budget: [],
+      followUpMode: [],
+      bestTimeToContact: [],
+      additionalNotes: '',
+      consent: false,
       exhibitionId: 0,
       productIds: [],
     });
@@ -122,6 +226,22 @@ export default function VisitorsPage() {
       email: visitor.email,
       phone: visitor.phone,
       companyName: visitor.companyName,
+      designation: visitor.designation || '',
+      cityState: visitor.cityState || '',
+      companyType: visitor.companyType || [],
+      companyTypeOther: visitor.companyTypeOther || '',
+      industry: visitor.industry || [],
+      industryOther: visitor.industryOther || '',
+      companySize: visitor.companySize || [],
+      interestAreas: visitor.interestAreas || [],
+      solutions: visitor.solutions || [],
+      solutionsOther: visitor.solutionsOther || '',
+      timeline: visitor.timeline || [],
+      budget: visitor.budget || [],
+      followUpMode: visitor.followUpMode || [],
+      bestTimeToContact: visitor.bestTimeToContact || [],
+      additionalNotes: visitor.additionalNotes || '',
+      consent: visitor.consent ?? false,
 
       exhibitionId: visitor.exhibition.id,
 
@@ -147,7 +267,26 @@ export default function VisitorsPage() {
     }));
   };
 
+  const toggleMulti = (value: string, key: keyof typeof formData) => {
+    setFormData((prev) => {
+      const current = prev[key] as string[];
+      const next = current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value];
+      return { ...prev, [key]: next };
+    });
+  };
+
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    if (!formData.name || !formData.email || !formData.phone || !formData.exhibitionId || !formData.consent) {
+      toast({
+        title: "Please fill all required fields",
+        variant: "warning",
+      });
+      return;
+    }
+    setIsSubmitting(true);
     try {
       await createVisitor(formData);
 
@@ -157,15 +296,34 @@ export default function VisitorsPage() {
 
       setIsModalOpen(false);
       setEditingId(null);
-    } catch (err) {
+      toast({
+        title: "Visitor created",
+        variant: "success",
+      });
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        (err instanceof Error ? err.message : "Failed to save visitor");
       console.error("Failed to save visitor", err);
+      toast({
+        title: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleConfirmDelete = () => {
-    if (deleteId) {
+    if (deleteId && !isDeleting) {
+      setIsDeleting(true);
       setVisitors((prev) => prev.filter((v) => v.id !== deleteId));
       setIsConfirmOpen(false);
+      toast({
+        title: "Visitor deleted",
+        variant: "success",
+      });
+      setIsDeleting(false);
     }
   };
 
@@ -218,7 +376,7 @@ export default function VisitorsPage() {
               key: 'id',
               label: 'Actions',
               render: (_, row: any) => (
-                <div className="flex gap-1 md:gap-2">
+                <div className="flex gap-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -249,11 +407,12 @@ export default function VisitorsPage() {
           onSubmit={editingId ? () => "" : handleSubmit}
           submitText={editingId ? undefined : "Save"}
           isViewMode={isViewMode}
+          isLoading={isSubmitting}
         >
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Visitor Name
+                Visitor Name <span className="text-red-600">*</span>
               </label>
               <Input
                 value={formData.name}
@@ -261,12 +420,13 @@ export default function VisitorsPage() {
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 placeholder="Enter visitor name"
+                required
                 disabled={isViewMode}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Email <span className="text-red-600">*</span>
               </label>
               <Input
                 type="email"
@@ -275,12 +435,13 @@ export default function VisitorsPage() {
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
                 placeholder="Enter email"
+                required
                 disabled={isViewMode}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone
+                Phone <span className="text-red-600">*</span>
               </label>
               <Input
                 value={formData.phone}
@@ -289,6 +450,7 @@ export default function VisitorsPage() {
                 }
                 placeholder="Enter phone"
                 maxLength={10}
+                required
                 disabled={isViewMode}
               />
             </div>
@@ -307,7 +469,33 @@ export default function VisitorsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Exhibition
+                Designation / Role
+              </label>
+              <Input
+                value={formData.designation}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, designation: e.target.value }))
+                }
+                placeholder="Enter designation or role"
+                disabled={isViewMode}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                City & State
+              </label>
+              <Input
+                value={formData.cityState}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, cityState: e.target.value }))
+                }
+                placeholder="City, State"
+                disabled={isViewMode}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Exhibition <span className="text-red-600">*</span>
               </label>
               <Select
                 value={formData.exhibitionId ? String(formData.exhibitionId) : ""}
@@ -327,6 +515,225 @@ export default function VisitorsPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="pt-2">
+              <h3 className="text-base font-semibold text-gray-900 mb-2">Section 2: Company Profile</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Company Type</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {COMPANY_TYPES.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.companyType.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'companyType')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                  {formData.companyType.includes('Other') && (
+                    <Input
+                      className="mt-2"
+                      placeholder="Other company type"
+                      value={formData.companyTypeOther}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, companyTypeOther: e.target.value }))
+                      }
+                      disabled={isViewMode}
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Industry</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {INDUSTRIES.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.industry.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'industry')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                  {formData.industry.includes('Other') && (
+                    <Input
+                      className="mt-2"
+                      placeholder="Other industry"
+                      value={formData.industryOther}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, industryOther: e.target.value }))
+                      }
+                      disabled={isViewMode}
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Company Size</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {COMPANY_SIZES.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.companySize.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'companySize')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <h3 className="text-base font-semibold text-gray-900 mb-2">Section 3: Interest Areas</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">What are you interested in?</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {INTEREST_AREAS.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.interestAreas.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'interestAreas')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Solutions / Services of Interest</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {SOLUTIONS.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.solutions.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'solutions')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                  {formData.solutions.includes('Other') && (
+                    <Input
+                      className="mt-2"
+                      placeholder="Other solutions/services"
+                      value={formData.solutionsOther}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, solutionsOther: e.target.value }))
+                      }
+                      disabled={isViewMode}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <h3 className="text-base font-semibold text-gray-900 mb-2">Section 4: Buying Intent</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Timeline for Requirement</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {TIMELINES.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.timeline.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'timeline')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Estimated Budget Range (Optional)</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {BUDGETS.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.budget.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'budget')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <h3 className="text-base font-semibold text-gray-900 mb-2">Section 5: Follow-up Preference</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Preferred Mode of Follow-Up</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {FOLLOW_UP_MODES.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.followUpMode.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'followUpMode')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Best Time to Contact</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {BEST_TIMES.map((option) => (
+                      <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={formData.bestTimeToContact.includes(option)}
+                          onCheckedChange={() => toggleMulti(option, 'bestTimeToContact')}
+                          disabled={isViewMode}
+                        />
+                        {option}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <h3 className="text-base font-semibold text-gray-900 mb-2">Section 6: Additional Notes</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Specific Requirements / Comments
+                </label>
+                <textarea
+                  value={formData.additionalNotes}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, additionalNotes: e.target.value }))
+                  }
+                  disabled={isViewMode}
+                  className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none"
+                />
+              </div>
+              <label className="mt-3 flex items-start gap-2 text-sm text-gray-700">
+                <Checkbox
+                  checked={formData.consent}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, consent: Boolean(checked) }))
+                  }
+                  disabled={isViewMode}
+                />
+                I agree to be contacted regarding products, services, and future updates related to Nixel.
+                <span className="text-red-600">*</span>
+              </label>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -390,6 +797,7 @@ export default function VisitorsPage() {
           confirmText="Delete"
           isDangerous
           onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
 
         {previewFile && (

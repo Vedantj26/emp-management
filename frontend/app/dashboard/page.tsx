@@ -7,8 +7,6 @@ import { Users, ShoppingCart, Heart } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getDashboard } from '@/api/dashboard';
 
-/* ================= TYPES ================= */
-
 interface DateCountDto {
   date: string;
   count: number;
@@ -38,8 +36,6 @@ interface DashboardResponse {
   };
 }
 
-/* ================= PAGE ================= */
-
 export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
 
@@ -58,13 +54,11 @@ export default function DashboardPage() {
   return (
     <AdminLayout>
       <div className="space-y-8">
-        {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-1">Welcome to Tech Expo 2026</p>
         </div>
 
-        {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Visitors"
@@ -96,7 +90,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Visitors */}
         <DataTable
           title="Recent Visitors"
           columns={[

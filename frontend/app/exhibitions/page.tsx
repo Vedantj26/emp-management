@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Edit, Trash2 } from 'lucide-react';
 import { getAuthUser } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
+import { toast } from '@/hooks/use-toast';
 import {
   getExhibitions,
   createExhibition,
   updateExhibition,
+  deleteExhibition,
 } from "@/api/exhibitions";
 import {
   Select,
@@ -41,6 +43,8 @@ export default function ExhibitionsPage() {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -114,6 +118,8 @@ export default function ExhibitionsPage() {
 
   const handleSubmit = async () => {
     if (!isAdmin) return;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const payload = {
       name: formData.name,
@@ -125,6 +131,8 @@ export default function ExhibitionsPage() {
     };
 
     try {
+      const isEditing = Boolean(editingId);
+
       if (editingId) {
         await updateExhibition(editingId, payload);
       } else {
@@ -134,15 +142,43 @@ export default function ExhibitionsPage() {
       await fetchExhibitions();
       setIsModalOpen(false);
       setEditingId(null);
+      toast({
+        title: isEditing ? "Exhibition updated" : "Exhibition created",
+        variant: "success",
+      });
     } catch (err) {
       console.error("Failed to save exhibition", err);
+      toast({
+        title: "Failed to save exhibition",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleConfirmDelete = () => {
-    if (deleteId) {
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    if (isDeleting) return;
+    setIsDeleting(true);
+
+    try {
+      await deleteExhibition(deleteId);
       setExhibitions((prev) => prev.filter((e) => e.id !== deleteId));
       setIsConfirmOpen(false);
+      setDeleteId(null);
+      toast({
+        title: "Exhibition deleted",
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Failed to delete exhibition", err);
+      toast({
+        title: "Failed to delete exhibition",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -188,7 +224,7 @@ export default function ExhibitionsPage() {
                 key: 'id',
                 label: 'Actions',
                 render: (_: any, row: any) => (
-                  <div className="flex gap-2">
+                  <div className="flex gap-0">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -224,6 +260,7 @@ export default function ExhibitionsPage() {
           onOpenChange={setIsModalOpen}
           title={editingId ? 'Edit Exhibition' : 'Add Exhibition'}
           onSubmit={handleSubmit}
+          isLoading={isSubmitting}
         >
           <div className="space-y-4">
             <div>
@@ -339,6 +376,7 @@ export default function ExhibitionsPage() {
           confirmText="Delete"
           isDangerous
           onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
       </div>
 
