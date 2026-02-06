@@ -8,11 +8,8 @@ import { clearAuthData } from "@/lib/auth";
 import { startGlobalLoader, stopGlobalLoader } from "@/hooks/use-global-loader";
 
 const api: AxiosInstance = axios.create({
-  baseURL: "/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
-  headers: {
-    "ngrok-skip-browser-warning": "true",
-  },
 });
 
 api.interceptors.request.use(

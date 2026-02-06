@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -21,6 +22,15 @@ public class VisitorController {
     @PostMapping
     public VisitorCreateResponse createVisitor(@RequestBody VisitorRequest request) {
         return visitorService.createVisitorPublic(request);
+    }
+
+    @GetMapping("/public/exists")
+    public Map<String, Boolean> visitorExists(
+            @RequestParam String email,
+            @RequestParam Long exhibitionId
+    ) {
+        boolean exists = visitorService.visitorExists(email, exhibitionId);
+        return Map.of("exists", exists);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")

@@ -2,6 +2,7 @@ package com.example.employee.service.impl;
 
 import com.example.employee.dto.VisitorCreateResponse;
 import com.example.employee.dto.VisitorRequest;
+import com.example.employee.dto.VisitorSummary;
 import com.example.employee.model.*;
 import com.example.employee.repository.*;
 import com.example.employee.service.EmailService;
@@ -130,7 +131,20 @@ public class VisitorServiceImpl implements VisitorService {
             logger.error("Email failed for visitor {}: {}", visitor.getEmail(), e.getMessage(), e);
         }
 
-        return new VisitorCreateResponse(visitor, emailSent, emailError);
+        VisitorSummary summary = new VisitorSummary(
+                visitor.getId(),
+                visitor.getName(),
+                visitor.getEmail()
+        );
+
+        return new VisitorCreateResponse(summary, emailSent, emailError);
+    }
+
+    @Override
+    public boolean visitorExists(String email, Long exhibitionId) {
+        if (email == null || exhibitionId == null) return false;
+        String normalizedEmail = email.trim().toLowerCase();
+        return visitorRepository.existsByEmailAndExhibitionId(normalizedEmail, exhibitionId);
     }
 
     @Override

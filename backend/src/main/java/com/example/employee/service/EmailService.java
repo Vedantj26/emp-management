@@ -147,7 +147,7 @@
             Email toEmail = new Email(to);
 
             Email cc1 = new Email("govind.bharkade@nixelsoft.com");
-            Email cc2 = new Email("sana.chougle@nixelsoft.com");
+//            Email cc2 = new Email("sana.chougle@nixelsoft.com");
 
             String productNames = products.stream()
                     .map(Product::getName)
@@ -202,17 +202,17 @@
             Personalization personalization = new Personalization();
             personalization.addTo(toEmail);
             personalization.addCc(cc1);
-            personalization.addCc(cc2);
+//            personalization.addCc(cc2);
 
             mail.addPersonalization(personalization);
 
             // Inline logo
             try {
-                Path logoPath = Paths.get("src/main/resources/documents/Nixel.jpeg");
+                Path logoPath = Paths.get("src/main/resources/documents/New Nixel Logo.jpg");
                 if (Files.exists(logoPath)) {
                     byte[] logoBytes = Files.readAllBytes(logoPath);
                     Attachments logo = new Attachments();
-                    logo.setFilename("Nixel.jpeg");
+                    logo.setFilename("New Nixel Logo.jpg");
                     logo.setType("image/jpeg");
                     logo.setDisposition("inline");
                     logo.setContentId("nixel-logo");
@@ -221,6 +221,22 @@
                 }
             } catch (IOException e) {
                 logger.warn("Failed to attach inline logo for visitor email: {}", e.getMessage());
+            }
+
+            // Attach corporate profile PDF
+            try {
+                Path profilePath = Paths.get("src/main/resources/documents/Nixel Corporate Profile.pdf");
+                if (Files.exists(profilePath)) {
+                    byte[] profileBytes = Files.readAllBytes(profilePath);
+                    Attachments profileAttachment = new Attachments();
+                    profileAttachment.setFilename("Nixel Corporate Profile.pdf");
+                    profileAttachment.setType("application/pdf");
+                    profileAttachment.setDisposition("attachment");
+                    profileAttachment.setContent(Base64.getEncoder().encodeToString(profileBytes));
+                    mail.addAttachments(profileAttachment);
+                }
+            } catch (IOException e) {
+                logger.warn("Failed to attach corporate profile PDF: {}", e.getMessage());
             }
 
             // 📎 Attach product files

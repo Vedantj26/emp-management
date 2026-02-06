@@ -12,13 +12,13 @@ export interface ExhibitionPayload {
     // endTime: string;
 }
 
-export const getExhibitions = () => api.get("/exhibitions");
+export const getExhibitions = () => api.get("/api/exhibitions");
 
 export const createExhibition = (data: ExhibitionPayload) =>
-    api.post("/exhibitions", data);
+    api.post("/api/exhibitions", data);
 
 export const updateExhibition = (id: number, data: ExhibitionPayload) =>
-    api.put(`/exhibitions/${id}`, data);
+    api.put(`/api/exhibitions/${id}`, data);
 
 export const deleteExhibition = (id: number) =>
-    api.delete(`/exhibitions/${id}`);
+    api.delete(`/api/exhibitions/${id}`);

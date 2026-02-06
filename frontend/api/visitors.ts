@@ -43,10 +43,10 @@ export interface VisitorCreateResponse {
 }
 
 export const createVisitor = (data: Visitor) =>
-    api.post<VisitorCreateResponse>("/visitors", data);
+    api.post<VisitorCreateResponse>("/api/visitors", data);
 
 export const getAllVisitors = () =>
-    api.get("/visitors/all");
+    api.get("/api/visitors/all");
 
 export const getVisitorsByExhibition = (exhibitionId: number) =>
-    api.get(`/visitors/exhibition/${exhibitionId}`);
+    api.get(`/api/visitors/exhibition/${exhibitionId}`);

@@ -1,4 +1,4 @@
 app:
-  frontend-urls: http://localhost:3000,https://nonpursuant-renewedly-mozelle.ngrok-free.dev
+  frontend-url: http://localhost:3000
 
 API_BASE_URL: http://10.106.58.58:8080

@@ -12,6 +12,8 @@ public interface VisitorService {
 
     VisitorCreateResponse createVisitorPublic(VisitorRequest visitorRequest);
 
+    boolean visitorExists(String email, Long exhibitionId);
+
     List<Visitor> getVisitorsByExhibition(Long exhibitionId);
 
     List<Visitor> getAllVisitors();

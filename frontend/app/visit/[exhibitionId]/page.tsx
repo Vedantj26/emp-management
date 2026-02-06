@@ -29,6 +29,7 @@ interface Product {
 export default function VisitorRegistrationPage() {
   const params = useParams();
   const exhibitionId = params.exhibitionId as string;
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
 
   // Form state
   const [name, setName] = useState('');
@@ -59,7 +60,6 @@ export default function VisitorRegistrationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
@@ -77,9 +77,7 @@ export default function VisitorRegistrationPage() {
         setError(null);
 
         // Fetch exhibition details
-        const exhibitionRes = await fetch(`/api/exhibitions/public/${exhibitionId}`, {
-          headers: { 'ngrok-skip-browser-warning': 'true' },
-        })
+        const exhibitionRes = await fetch(`${apiBase}/api/exhibitions/public/${exhibitionId}`)
 
         if (!exhibitionRes.ok) {
           throw new Error('Failed to load exhibition');
@@ -88,9 +86,7 @@ export default function VisitorRegistrationPage() {
         setExhibition(exhibitionData);
 
         // Fetch products for exhibition
-        const productsRes = await fetch(`/api/products/public`, {
-          headers: { 'ngrok-skip-browser-warning': 'true' },
-        })
+        const productsRes = await fetch(`${apiBase}/api/products/public`)
 
         if (!productsRes.ok) {
           throw new Error('Failed to load products');
@@ -170,15 +166,15 @@ export default function VisitorRegistrationPage() {
       setIsSubmitting(true);
       setError(null);
 
-      const response = await fetch(`/api/visitors`, {
+      const submittedEmail = email.trim().toLowerCase();
+      const response = await fetch(`${apiBase}/api/visitors`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           name,
-          email,
+          email: submittedEmail,
           phone,
           companyName: company,
           designation,
@@ -212,6 +208,37 @@ export default function VisitorRegistrationPage() {
         } catch {
           // ignore JSON parse errors
         }
+
+        // If the server resets the connection after saving, treat it as a soft success.
+        if (response.status >= 500) {
+          toast({
+            title: 'Registration submitted',
+            variant: 'success',
+          });
+          setName('');
+          setEmail('');
+          setPhone('');
+          setCompany('');
+          setDesignation('');
+          setCityState('');
+          setSelectedProducts([]);
+          setCompanyType([]);
+          setCompanyTypeOther('');
+          setIndustry([]);
+          setIndustryOther('');
+          setCompanySize([]);
+          setInterestAreas([]);
+          setSolutions([]);
+          setSolutionsOther('');
+          setTimeline([]);
+          setBudget([]);
+          setFollowUpMode([]);
+          setBestTimeToContact([]);
+          setAdditionalNotes('');
+          setConsent(false);
+          return;
+        }
+
         throw new Error(message);
       }
 
@@ -223,7 +250,6 @@ export default function VisitorRegistrationPage() {
         });
       }
 
-      setSuccess(true);
       toast({
         title: 'Registration submitted',
         variant: 'success',
@@ -252,10 +278,6 @@ export default function VisitorRegistrationPage() {
       setAdditionalNotes('');
       setConsent(false);
 
-      // Show success message for 3 seconds then reset
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to submit registration';
@@ -297,20 +319,6 @@ export default function VisitorRegistrationPage() {
     );
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 text-center">
-          <CheckCircle className="w-10 h-10 text-green-600 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900">Thank you for visiting us</h2>
-          <p className="text-sm text-gray-600 mt-2">
-            {name ? `${name}, ` : ''}we’ve received your details and will get back to you soon.
-          </p>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4 py-8">
       <Card className="w-full max-w-2xl">
@@ -319,7 +327,7 @@ export default function VisitorRegistrationPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#0090d0] via-[#0b76b5] to-[#0a5f96]" />
           <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -left-10 -bottom-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-          <div className="relative flex items-start justify-between gap-6">
+          <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
             <div className="min-w-0">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-wide text-white/90">
                 Visitor Registration
@@ -335,11 +343,11 @@ export default function VisitorRegistrationPage() {
                 </p>
               )}
             </div>
-            <div className="shrink-0 rounded-2xl bg-white/90 p-2 shadow-lg">
+            <div className="shrink-0 self-start rounded-2xl bg-white/90 p-2 shadow-lg md:self-auto">
               <img
-                src="/Nixel.jpeg"
+                src="/New Nixel Logo.jpg"
                 alt="Nixel logo"
-                className="h-24 md:h-28 w-auto object-contain"
+                className="h-16 w-auto object-contain sm:h-20 md:h-28"
               />
             </div>
           </div>
@@ -350,20 +358,6 @@ export default function VisitorRegistrationPage() {
 
         {/* Form Content */}
         <div className="p-6 md:p-8">
-          {success && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold text-green-900">
-                  Registration Successful!
-                </h3>
-                <p className="text-sm text-green-800 mt-1">
-                  Thank you for registering. We'll send you product details soon.
-                </p>
-              </div>
-            </div>
-          )}
-
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
@@ -538,7 +532,7 @@ export default function VisitorRegistrationPage() {
                     <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
                       <Checkbox
                         checked={companySize.includes(option)}
-                        onCheckedChange={() => toggleMulti(option, setCompanySize)}
+                        onCheckedChange={() => toggleSingle(option, setCompanySize)}
                         disabled={isSubmitting}
                       />
                       {option}

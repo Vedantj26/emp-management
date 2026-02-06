@@ -12,14 +12,14 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${app.frontend-urls}")
-    private String frontendUrls;
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(frontendUrls.split(",")));
+        config.setAllowedOrigins(List.of(frontendUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
