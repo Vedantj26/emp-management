@@ -22,6 +22,7 @@ import { getProducts } from '@/api/products';
 import { createVisitor, getVisitorsByExhibition } from '@/api/visitors';
 import { toast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Visitor {
   id: number;
@@ -114,6 +115,17 @@ const FOLLOW_UP_MODES = ['Email', 'Phone Call', 'WhatsApp', 'Online Meeting'];
 
 const BEST_TIMES = ['Morning', 'Afternoon', 'Evening'];
 
+const EXPORT_COLUMNS = [
+  { key: 'name', label: 'Visitor Name' },
+  { key: 'email', label: 'Email Id' },
+  { key: 'phone', label: 'Phone Number' },
+  { key: 'companyName', label: 'Company Name' },
+  { key: 'products', label: 'Products Name' },
+  { key: 'additionalNotes', label: 'Additional Notes' },
+] as const;
+
+type ExportColumnKey = (typeof EXPORT_COLUMNS)[number]['key'];
+
 export default function VisitorsPage() {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -132,6 +144,9 @@ export default function VisitorsPage() {
   const [exhibitions, setExhibitions] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [selectedExhibitionId, setSelectedExhibitionId] = useState<number | null>(null);
+  const [exportColumns, setExportColumns] = useState<ExportColumnKey[]>(
+    EXPORT_COLUMNS.map((col) => col.key)
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -288,6 +303,76 @@ export default function VisitorsPage() {
     });
   };
 
+  const getProductsLabel = (visitor: Visitor) =>
+    visitor.visitorProducts
+      ?.map((vp) => vp.product?.name)
+      .filter(Boolean)
+      .join(', ') || '';
+
+  const formatDisplayValue = (value: string) => (value ? value : '-');
+
+  const toggleExportColumn = (key: ExportColumnKey) => {
+    setExportColumns((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  };
+
+  const handleExportVisitors = () => {
+    if (exportColumns.length === 0) {
+      toast({
+        title: "Select at least one column to export",
+        variant: "warning",
+      });
+      return;
+    }
+
+    const header = EXPORT_COLUMNS
+      .filter((col) => exportColumns.includes(col.key))
+      .map((col) => col.label);
+
+    const rows = visitors.map((visitor) => {
+      return EXPORT_COLUMNS
+        .filter((col) => exportColumns.includes(col.key))
+        .map((col) => {
+          let value = '';
+          switch (col.key) {
+            case 'name':
+              value = formatDisplayValue(visitor.name || '');
+              break;
+            case 'email':
+              value = formatDisplayValue(visitor.email || '');
+              break;
+            case 'phone':
+              value = formatDisplayValue(visitor.phone || '');
+              break;
+            case 'companyName':
+              value = formatDisplayValue(visitor.companyName || '');
+              break;
+            case 'products':
+              value = formatDisplayValue(getProductsLabel(visitor));
+              break;
+            case 'additionalNotes':
+              value = formatDisplayValue(visitor.additionalNotes || '');
+              break;
+            default:
+              value = '';
+          }
+          return `"${String(value).replace(/"/g, '""')}"`;
+        })
+        .join(',');
+    });
+
+    const csvContent = [header.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    link.download = `visitors-${selectedExhibitionId ?? 'all'}-${date}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (!formData.name || !formData.email || !formData.phone || !formData.exhibitionId || !formData.consent) {
@@ -355,7 +440,35 @@ export default function VisitorsPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Visitors</h1>
             <p className="text-sm md:text-base text-gray-600 mt-1">Manage exhibition visitors</p>
           </div>
-          <Button onClick={handleAddClick} className="w-full md:w-auto">Add Visitor</Button>
+          <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full md:w-auto">
+                  Export Visitors
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-900">Select columns</p>
+                  <div className="space-y-2">
+                    {EXPORT_COLUMNS.map((col) => (
+                      <label key={col.key} className="flex items-center gap-2 text-sm text-gray-700">
+                        <Checkbox
+                          checked={exportColumns.includes(col.key)}
+                          onCheckedChange={() => toggleExportColumn(col.key)}
+                        />
+                        {col.label}
+                      </label>
+                    ))}
+                  </div>
+                  <Button onClick={handleExportVisitors} className="w-full">
+                    Export CSV
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <Button onClick={handleAddClick} className="w-full md:w-auto">Add Visitor</Button>
+          </div>
         </div>
 
         {/* Filter Controls */}
@@ -387,11 +500,37 @@ export default function VisitorsPage() {
 
         <DataTable
           columns={[
-            { key: 'name', label: 'Visitor Name' },
-            { key: 'email', label: 'Email', hideOnMobile: true },
-            { key: 'phone', label: 'Phone', hideOnMobile: true },
-            { key: 'companyName', label: 'Company', hideOnMobile: true },
-            { key: 'exhibitionName', label: 'Exhibition', hideOnMobile: true },
+            {
+              key: 'name',
+              label: 'Visitor Name',
+              render: (value) => formatDisplayValue(String(value || '')),
+            },
+            {
+              key: 'email',
+              label: 'Email Id',
+              render: (value) => formatDisplayValue(String(value || '')),
+            },
+            {
+              key: 'phone',
+              label: 'Phone Number',
+              render: (value) => formatDisplayValue(String(value || '')),
+            },
+            {
+              key: 'companyName',
+              label: 'Company Name',
+              render: (value) => formatDisplayValue(String(value || '')),
+            },
+            {
+              key: 'visitorProducts',
+              label: 'Products Name',
+              render: (_value, row: Visitor) =>
+                formatDisplayValue(getProductsLabel(row)),
+            },
+            {
+              key: 'additionalNotes',
+              label: 'Additional Notes',
+              render: (value) => formatDisplayValue(String(value || '')),
+            },
             {
               key: 'id',
               label: 'Actions',
